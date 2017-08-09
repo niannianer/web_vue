@@ -1,0 +1,21 @@
+weixin-h5-test:
+  tags:
+    - weixin-jq-tag
+  script:
+     - echo 'start...'
+  only:
+    - test
+  after_script:
+    - scp -r land/* web@47.93.35.76:/home/web/webhive/nginx/jq/land
+    - scp -r html/* web@47.93.35.76:/home/web/webhive/nginx/jq
+
+weixin-h5-build:
+  tags:
+    - weixin-jq-tag
+  script:
+    - echo 'start...'
+  only:
+    - build
+  after_script:
+    - scp -r land/* web@47.93.35.76:/home/web/wechat/jq/land
+    - scp -r html/* web@47.93.35.76:/home/web/wechat/jq
