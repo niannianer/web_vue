@@ -2,8 +2,8 @@
  * Created by DELL on 2017/6/5.
  */
 let protocol = window.location.protocol;
-export const devUrl = 'http://10.10.10.69:6640';
-export const testUrl = `${protocol}//47.93.8.25:6640`;
+export const devUrl = 'http://10.10.10.72:8891';
+export const testUrl = `${protocol}//59.110.231.153:8891`;
 export const productionUrl = `${protocol}//issuer-pc-prod.zj-hf.cn`;
 
 export const baofooCallUrlProduct = `${protocol}//callme.zj-hf.cn`;

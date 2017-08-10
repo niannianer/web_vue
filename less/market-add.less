@@ -1,0 +1,83 @@
+@charset "UTF-8";
+@import "variables";
+
+.market-info {
+    font-size: 16px;
+    .common-list{
+        padding-top:30px;
+        input{
+            display:inline-block;
+            margin-right:10px;
+            width:326px;height:42px;
+            border: 1px solid #9B9C9C;
+            border-radius: 4px;
+            padding:0 12px;
+            color:#333;
+            font-size:14px;
+            &.sm{
+                width:124px;
+                margin: 0 10px;
+            }
+            &:focus {
+                border-color:@color-active;
+            }
+        }
+        input:disabled,input[disabled]{
+            background-color: transparent;
+        }
+        li{
+            line-height: 44px;
+            margin-bottom: 14px;
+            .info-left{
+                width:300px;
+                margin-right: 20px;
+                text-align: right;
+                position: relative;
+            }
+            .info-center{
+                .select-area{
+                    width:326px;
+                    padding-top:4px;
+                    .cols{
+                        width:150px;
+                        select,.select-view{
+                            height: 36px;
+                            border: 1px solid #9B9C9C;
+                            padding: 0 1.75rem 0 0.75rem;
+                            color: #333;
+                            line-height: 34px;
+                        }
+                        .select-view{
+                            position: relative;
+                            font-size: 14px;
+                            &:after{
+                                content: "";
+                                display: block;
+                                width:32px;
+                                height:36px;
+                                position: absolute;
+                                right:-1px;
+                                top:50%;
+                                margin-top:-18px;
+                                border-radius: 0 4px 4px 0;
+                            }
+                        }
+                    }
+                }
+            }
+            .info-right{
+                font-size: 14px;
+                margin-left: 10px;
+                color:#C72C2C;
+            }
+        }
+    }
+    .submit-btn {
+        margin-top: 60px;
+        button {
+            width: 235px;
+            height: 44px;
+            font-size: 18px;
+        }
+    }
+}
