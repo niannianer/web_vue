@@ -11,15 +11,13 @@
                 </dl>
                 <div class="table-btn" flex>
                     <b-btn class="btns" @click.native="search">查询</b-btn>
-                    <b-btn class="btns" @click.native="addMarket">添加</b-btn>
+                    <b-btn class="btns" @click.native="addMarket(0)">添加</b-btn>
                 </div>
             </div>
             <div class="market-table">
                 <b-table :items="items" :fields="fields"  bordered>
-                    <!-- <template slot="userVerifyStatus" scope="item">{{ item.value == 9 ? '是' : '否' }}</template>
-                    <template slot="userUuid" scope="item">
-                        <router-link :to="{path: 'user-infor-detail',query:{userUuid:item.value}}">详情</router-link>
-                    </template> -->
+                    <template slot="experienceAmount" scope="item">{{ item.value | currencyFormat}}</template>
+                    <template slot="annualInterestRate" scope="item">{{ item.value | translatePateInt}}</template>
                     <template slot="issueNode" scope="item">注册</template>
                     <template slot="conditionProductPeriod" scope="item">累计投资{{item.value}}天以上产品超过{{item.item.conditionProductAmount}}元</template>
                     <template slot="etStatus" scope="item">
@@ -27,9 +25,7 @@
                         <template v-if="item.value == 1">已激活</template>
                         <template v-if="item.value == 2">已停用</template>
                     </template>
-                    <template slot="createTime" scope="item">
-                        {{item.value | timeFormat}}
-                    </template>
+                    <template slot="createTime" scope="item">{{item.value | timeFormat}}</template>
                     <template slot="operation" scope="item">
                         <div v-if="item.item.etStatus == 0" flex="main:center">
                             <b-btn class="btns" @click.native="addMarket(item.item.etUuid)">修改</b-btn>
@@ -55,7 +51,6 @@
 
 <script>
     import $api from '../tools/api';
-    import Toast from '../components/Toast';
     import Confirm from '../components/Confirm';
     export default {
         name: 'market',
@@ -111,7 +106,6 @@
                     experienceName:this.experienceName
                 }).then(msg=>{
                     if(msg.code == 200){
-                        //Toast('ok');
                         this.items = msg.data.newsList;
                         this.count = msg.data.count;
                     }
@@ -126,7 +120,7 @@
                 this.pageNo = 1;
                 this.getTable();
             },
-            //激活
+            //激活&停用
             updateMarket(etUuid,etStatus){
                 let content = '请确认是否激活体验金“注册体验金”？';
                 let okText = '确认激活';
@@ -144,7 +138,6 @@
                                 etUuid:etUuid,
                                 etStatus:etStatus
                             }).then(msg=>{
-                                console.log(msg)
                                 if(msg.code == 200){
                                     this.getTable();
                                 }
@@ -155,9 +148,11 @@
             },
             //添加&修改
             addMarket(etUuid){
+                console.log(etUuid)
                 let url = '/market-add.html';
-                if(etUuid)
+                if(etUuid){
                     url = url+'?etUuid='+etUuid;
+                }
                 location.href = url;
             }
         },
