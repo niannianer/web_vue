@@ -127,18 +127,35 @@ ul,ol,dl{
     display: none;
 }
 
-.app{
-    table{
-        text-align: center;
-        white-space: nowrap;
-        th,td{
-            text-align: center;
-            font-weight: normal;
-            padding:.5rem;
-        }
-        th{
+.wrapper{
+    padding:20px 30px;
+    max-width: 1200px;
+    margin:0 auto;
+    .common-title{
+        font-size: 20px;
+        line-height: 1em;
+        padding: 0 15px 15px;
+        border-bottom: 1px solid @color-split;
+        position: relative;
+        margin-bottom: 30px;
+        &:after{
+            content: "";
+            display: block;
+            width: 6px;
+            height: 24px;
             background-color: @color-active;
-            color:#fff;
+            position: absolute;
+            left: 0;
+            top: -2px;
+        }
+    }
+    .btns{
+        background-color: @bg-botton-active;
+        font-size: 12px;
+        color:#fff;
+        border:none;
+        &:hover{
+            box-shadow: 0 0 5px @bg-botton-active;
         }
     }
 }
