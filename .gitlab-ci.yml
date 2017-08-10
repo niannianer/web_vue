@@ -6,16 +6,6 @@ weixin-h5-test:
   only:
     - test
   after_script:
-    - scp -r land/* web@47.93.35.76:/home/web/webhive/nginx/jq/land
-    - scp -r html/* web@47.93.35.76:/home/web/webhive/nginx/jq
+    - scp -r dist/* web@47.93.35.76:/home/web/webhive/nginx/kop-web/dist
+    - scp -r html/* web@47.93.35.76:/home/web/webhive/nginx/kop-web
 
-weixin-h5-build:
-  tags:
-    - weixin-jq-tag
-  script:
-    - echo 'start...'
-  only:
-    - build
-  after_script:
-    - scp -r land/* web@47.93.35.76:/home/web/wechat/jq/land
-    - scp -r html/* web@47.93.35.76:/home/web/wechat/jq
