@@ -11,7 +11,7 @@
                 </dl>
                 <div class="table-btn" flex>
                     <b-btn class="btns" @click.native="search">查询</b-btn>
-                    <b-btn class="btns" @click.native="addMarket">添加</b-btn>
+                    <b-btn class="btns" @click.native="addMarket(0)">添加</b-btn>
                 </div>
             </div>
             <div class="market-table">
@@ -148,9 +148,11 @@
             },
             //添加&修改
             addMarket(etUuid){
+                console.log(etUuid)
                 let url = '/market-add.html';
-                if(etUuid)
+                if(etUuid){
                     url = url+'?etUuid='+etUuid;
+                }
                 location.href = url;
             }
         },
