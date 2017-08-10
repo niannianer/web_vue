@@ -44,19 +44,20 @@
                                           class="sm"
                                           v-model="conditionProductPeriod"
                                           maxlength="3"
+                                          @focus="conditionError=false"
                             ></b-form-input>
                             天以上产品超过
                             <b-form-input type="text"
                                           class="sm"
                                           v-model="conditionProductAmount"
                                           maxlength="11"
+                                          @focus="conditionError=false"
                             ></b-form-input>
                             元
-                        </div><!--
-                        <div class="info-right">
-                            <span v-if="item.model.length<1">!{{ item.name }}不能为空</span>
-                            <span v-else>!请输入正确的{{ item.name }}</span>
-                        </div>-->
+                        </div>
+                        <div class="info-right" v-show="conditionError">
+                            {{ conditionErrorMsg }}
+                        </div>
                     </template>
                 </li>
             </ul>
@@ -69,6 +70,7 @@
 
 <script>
     import $api from '../tools/api';
+    import Toast from '../components/Toast';
     export default {
         name: 'market-add',
         data(){
@@ -122,6 +124,8 @@
                 //领取条件
                 conditionProductPeriod: '',
                 conditionProductAmount: '',
+                conditionError: false,
+                conditionErrorMsg: '',
 
                 disabled: false,
                 btnDisabled: false,
@@ -141,6 +145,16 @@
                 if(this.listCheck(this.marketInfo)){
                     return
                 }
+                if(this.conditionProductPeriod.length<1){
+                    this.conditionError = true;
+                    this.conditionErrorMsg = '累计投资天数不能为空'
+                    return
+                }
+                if(this.conditionProductAmount.length<1){
+                    this.conditionError = true;
+                    this.conditionErrorMsg = '累计投资金额不能为空'
+                    return
+                }
                 let [experienceName,experienceAmount,annualInterestRate,rateDays] = this.marketInfo;
                 parmData.experienceName = experienceName.model;
                 parmData.experienceAmount = experienceAmount.model;
@@ -148,40 +162,47 @@
                 parmData.rateDays = rateDays.model;
                 parmData.conditionProductPeriod = this.conditionProductPeriod;
                 parmData.conditionProductAmount = this.conditionProductAmount;
-                if(this.integerCheck(experienceAmount.model)){
+                if(!(this.integerCheck(experienceAmount.model))){
                     experienceAmount.error = true;
                     this.setScrollTop(experienceAmount.dom);
                     return
                 }
-                if(this.decimalCheck(annualInterestRate.model)){
+                if(!(this.decimalCheck(annualInterestRate.model))){
                     annualInterestRate.error = true;
                     this.setScrollTop(annualInterestRate.dom);
                     return
                 }
-                if(this.integerCheck(rateDays.model)){
+                if(!(this.integerCheck(rateDays.model))){
                     rateDays.error = true;
                     this.setScrollTop(rateDays.dom);
                     return
                 }
-                if(this.integerCheck(this.conditionProductPeriod)){
-                    this.conditionProductPeriod.error = true;
-                    //this.setScrollTop(this.conditionProductPeriod.dom);
+                if(!(this.integerCheck(this.conditionProductPeriod))){
+                    this.conditionError = true;
+                    this.conditionErrorMsg = '请输入正确累计投资天数'
                     return
                 }
-                if(this.integerCheck(this.conditionProductAmount)){
-                    this.conditionProductAmount.error = true;
-                    //this.setScrollTop(this.conditionProductAmount.dom);
+                if(!(this.integerCheck(this.conditionProductAmount))){
+                    this.conditionError = true;
+                    this.conditionErrorMsg = '请输入正确累计投资金额'
                     return
                 }
 
                 console.log(parmData)
                 this.btnDisabled = true;//不可重复提交
                 //提交上传
-                $api.post(this.ajaxUrl,{data:parmData}).then(msg => {
+                $api.post(this.ajaxUrl,{
+                    experienceName: parmData.experienceName,
+                    experienceAmount: parmData.experienceAmount,
+                    annualInterestRate: parmData.annualInterestRate,
+                    rateDays: parmData.rateDays,
+                    conditionProductPeriod: parmData.conditionProductPeriod,
+                    conditionProductAmount: parmData.conditionProductAmount
+                }).then(msg => {
                     if(msg.code == 200){
-                        alert('添加成功')
+                        Toast('添加成功')
                     }else{
-                        alert(msg.msg);
+                        Toast(msg.msg);
                         this.btnDisabled = false;
                     }
                 });
@@ -202,10 +223,12 @@
                 var reg = /^[1-9]\d*$/;
                 return reg.test(num);
             },
+            //判断是否为正整数
             decimalCheck(num){
                 var reg = /^(?!0+(?:\.0+)?$)(?:[1-9]\d*|0)(?:\.\d{1,2})?$/;
                 return reg.test(num);
             },
+            //定位到有错误的输入框
             setScrollTop(dom){
                 let top = document.querySelector('.'+dom).offsetTop-100;
                 window.scrollTo(0,top)
