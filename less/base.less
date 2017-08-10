@@ -158,5 +158,46 @@ ul,ol,dl{
             box-shadow: 0 0 5px @bg-botton-active;
         }
     }
+    .table-handle{
+        .form-control{
+            height:30px;
+            border: 1px solid @color-active;
+            &:hover {
+                box-shadow: 0 0 10px rgba(79, 151, 235, .8) inset; 
+            }
+        }
+    }
+    .table{
+        margin-bottom: 20px;
+        th,td{
+            height:38px;padding:0 5px;
+            vertical-align:middle;
+            text-align: center;
+        }
+        th{
+            background-color: @bg-botton-active;
+            color:#fff;
+            font-weight: normal;
+        }
+        td{
+            .btns{
+                padding:.3rem .6rem;
+                margin-right:10px;
+            }
+            .btns:last-child{
+                margin-right:0;
+            }
+        }
+    }
+    .pages{
+        .page-item.active .page-link{
+            background-color: @bg-botton-active;
+            border-color: @bg-botton-active;
+        }
+        .total{
+            line-height: 35px;
+            margin-left: 10px;
+        }
+    }
 }
 

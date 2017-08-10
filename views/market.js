@@ -10,6 +10,12 @@ import Market from '../containers/Market';
 import 'flex.css/dist/flex.css';
 import '../less/base.less';
 import '../less/market.less';
+import _ from 'lodash/core';
+import * as filters from '../filters';
+console.log(filters)
+_.forEach(filters, (fun, key) => {
+    Vue.filter(key, fun);
+});
 new Vue({
     el: '#app',
     render: h => h(Market)
