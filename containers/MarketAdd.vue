@@ -75,6 +75,9 @@
         name: 'market-add',
         data(){
             return {
+                etUuid: '', //体验金编号
+                submitSuccessToast: '添加成功',
+
                 //体验金数据
                 marketInfo: [
                     {
@@ -98,7 +101,7 @@
                         placeholder: '请输入年化收益率',
                         suffix: '%',
                         dom: 'm-dom03',
-                        maxlength: 30,
+                        maxlength: 5,
                         error: false,
                         model: ''
                     },{
@@ -133,6 +136,10 @@
             }
         },
         created(){
+            if(location.search.split('=')[1]){
+                this.etUuid = location.search.split('=')[1];
+                this.getData();
+            }
         },
         computed: {},
         methods: {
@@ -167,7 +174,7 @@
                     this.setScrollTop(experienceAmount.dom);
                     return
                 }
-                if(!(this.decimalCheck(annualInterestRate.model))){
+                if(!(this.decimalCheck(annualInterestRate.model)) || annualInterestRate.model>=100){
                     annualInterestRate.error = true;
                     this.setScrollTop(annualInterestRate.dom);
                     return
@@ -187,11 +194,16 @@
                     this.conditionErrorMsg = '请输入正确累计投资金额'
                     return
                 }
-
-                console.log(parmData)
                 this.btnDisabled = true;//不可重复提交
+
+                //判断是否为修改
+                if(this.etUuid){
+                   this.ajaxUrl = '/market/updateMarketTemplate';
+                   this.submitSuccessToast = '修改成功'
+                }
                 //提交上传
                 $api.post(this.ajaxUrl,{
+                    etUuid: this.etUuid,
                     experienceName: parmData.experienceName,
                     experienceAmount: parmData.experienceAmount,
                     annualInterestRate: parmData.annualInterestRate,
@@ -200,7 +212,10 @@
                     conditionProductAmount: parmData.conditionProductAmount
                 }).then(msg => {
                     if(msg.code == 200){
-                        Toast('添加成功')
+                        Toast(this.submitSuccessToast);
+                        setTimeout(()=>{
+                            location.href = 'market.html'
+                        }, 1000);
                     }else{
                         Toast(msg.msg);
                         this.btnDisabled = false;
@@ -233,6 +248,22 @@
                 let top = document.querySelector('.'+dom).offsetTop-100;
                 window.scrollTo(0,top)
             },
+            getData(){
+                $api.get('/market/getMarketTemplate',{etUuid:this.etUuid}).then(res=>{
+                    if(res.code == 200){
+                        const data = res.data;
+                        this.createData(data);
+                    }
+                });
+            },
+            createData(data){
+                this.marketInfo[0].model = data.experienceName;
+                this.marketInfo[1].model = data.experienceAmount;
+                this.marketInfo[2].model = data.annualInterestRate;
+                this.marketInfo[3].model = data.rateDays;
+                this.conditionProductPeriod = data.conditionProductPeriod;
+                this.conditionProductAmount = data.conditionProductAmount;
+            }
         },
         destroyed(){
 

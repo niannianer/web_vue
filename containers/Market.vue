@@ -67,7 +67,7 @@
                         text: '全部',
                         value: ''
                     },
-                    {    
+                    {
                         text: '待激活',
                         value: 0
                     },{
@@ -128,7 +128,7 @@
                     //停用
                     content = '请确认是否停用体验金“注册体验金”？';
                     okText = '确认停用';
-                }   
+                }
                 Confirm({
                     content:content,
                     okText:okText,
@@ -149,7 +149,7 @@
             //添加&修改
             addMarket(etUuid){
                 console.log(etUuid)
-                let url = '/market-add.html';
+                let url = 'market-add.html';
                 if(etUuid){
                     url = url+'?etUuid='+etUuid;
                 }
