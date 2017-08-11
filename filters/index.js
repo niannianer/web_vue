@@ -36,6 +36,33 @@ export let translatePateInt = (input) => {
     let out = (inp*100).toFixed(0)
     return out+'%'
 };
+export let translatePate = (input) => {
+    if ((input == null) || (input == undefined)) {
+        return '--';
+    }
+    let inp = Number(input);
+    function accMul(arg1,arg2){
+        let m=0,s1=arg1.toString(),s2=arg2.toString();
+        if(s1.split(".")[1]){
+            m+=s1.split(".")[1].length
+        }
+        if(s2.split(".")[1]){
+            m+=s2.split(".")[1].length
+        }
+        return Number(s1.replace(".",""))*Number(s2.replace(".",""))/Math.pow(10,m)
+    }
+    let out = parseInt(accMul(inp,10000))/100;
+    let xsd= out.toString().split(".");
+    if(xsd.length==1){
+        out = out.toString()+".00";
+    }
+    if(xsd.length>1){
+        if(xsd[1].length<2){
+            out = out.toString()+"0";
+        }
+    }
+    return out+'%'
+};
 let add0 =(input)=>{
     if(!input){
         return '00';

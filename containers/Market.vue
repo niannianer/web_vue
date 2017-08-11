@@ -17,7 +17,7 @@
             <div class="market-table">
                 <b-table :items="items" :fields="fields"  bordered>
                     <template slot="experienceAmount" scope="item">{{ item.value | currencyFormat}}</template>
-                    <template slot="annualInterestRate" scope="item">{{ item.value | translatePateInt}}</template>
+                    <template slot="annualInterestRate" scope="item">{{ item.value | translatePate}}</template>
                     <template slot="issueNode" scope="item">注册</template>
                     <template slot="conditionProductPeriod" scope="item">累计投资{{item.value}}天以上产品超过{{item.item.conditionProductAmount}}元</template>
                     <template slot="etStatus" scope="item">
