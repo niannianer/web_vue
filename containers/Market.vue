@@ -134,9 +134,9 @@
                     okText:okText,
                     callback:(result)=>{
                         if(result){
-                            $api.post('/market/updateMarketTemplate',{
+                            $api.post('/market/updateMarketStatus',{
                                 etUuid:etUuid,
-                                etStatus:etStatus
+                                marketStatus:etStatus
                             }).then(msg=>{
                                 if(msg.code == 200){
                                     this.getTable();
