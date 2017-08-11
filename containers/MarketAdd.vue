@@ -1,6 +1,6 @@
 <template>
     <div class="market-add wrapper">
-        <div class="common-title">添加体验金</div>
+        <div class="common-title">{{commonTitle}}</div>
         <div class="content market-info">
             <ul class="common-list">
                 <li flex v-for="(item, index) in marketInfo" :key="index" :class="item.dom">
@@ -76,7 +76,8 @@
         data(){
             return {
                 etUuid: '', //体验金编号
-                submitSuccessToast: '添加成功',
+                commonTitle: '添加体验金',
+                submitSuccessToast: '添加成功', //提交成功提示
 
                 //体验金数据
                 marketInfo: [
@@ -138,6 +139,7 @@
         created(){
             if(location.search.split('=')[1]){
                 this.etUuid = location.search.split('=')[1];
+                this.commonTitle = '修改体验金';
                 this.getData();
             }
         },
