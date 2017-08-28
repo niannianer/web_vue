@@ -1,8 +1,8 @@
 <template>
-    <div class="market wrapper">
-        <div class="common-title">体验金管理</div>
-        <div class="market-wrap">
-            <div class="market-handle table-handle" flex="main:justify">
+    <div class="market wrapper" flex="dir:top">
+        <div class="common-title" flex-box="0">体验金管理</div>
+        <div class="market-wrap" flex-box="1" flex="dir:top">
+            <div class="market-handle table-handle" flex="main:justify" flex-box="0">
                 <dl class="table-input" flex>
                     <dt>体验金名称：</dt>
                     <dd><b-form-input type="text" size="sm" v-model="experienceName" placeholder="请输入体验金名称"></b-form-input></dd>
@@ -14,7 +14,7 @@
                     <b-btn class="btns" @click.native="addMarket(0)">添加</b-btn>
                 </div>
             </div>
-            <div class="market-table">
+            <div class="market-table" flex-box="1">
                 <b-table :items="items" :fields="fields"  bordered>
                     <template slot="experienceAmount" scope="item">{{ item.value | currencyFormat}}</template>
                     <template slot="annualInterestRate" scope="item">{{ item.value | translatePate}}</template>

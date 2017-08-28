@@ -1,0 +1,246 @@
+<template>
+    <div class="sms wrapper sms-check" flex="dir:top">
+        <div class="common-title" flex-box="0">短信发送审核</div>
+        <div class="sms-wrap" flex-box="1" flex="dir:top">
+            <div class="table-handle" flex-box="0">
+                <div class="table-input" flex="main:justify">
+                    <dl flex>
+                        <dt>请求用户名：</dt>
+                        <dd><b-form-input type="text" size="sm" v-model="requireUserName" placeholder="请输入请求用户名"></b-form-input></dd>
+                    </dl>
+                    <dl flex>
+                        <dt>用户姓名：</dt>
+                        <dd><b-form-input type="text" size="sm" v-model="userName" placeholder="请输入用户姓名"></b-form-input></dd>
+                    </dl>
+                    <dl flex>
+                        <dt>模板编号：</dt>
+                        <dd><b-form-input type="text" size="sm" v-model="modelNum" placeholder="请输入模板编号"></b-form-input></dd>
+                    </dl>
+                    <dl flex>
+                        <dt>状态：</dt>
+                        <dd><b-form-select v-model="statusSelected" :options="statusOptions" size="sm"></b-form-select></b-form-input></dd>
+                    </dl>
+                    <dl flex>
+                        <dt>类别：</dt>
+                        <dd><b-form-select v-model="typeSelected" :options="typeOptions" size="sm"></b-form-select></b-form-input></dd>
+                    </dl>
+                </div>
+                <div class="table-input" flex="main:justify">
+                    <dl flex>
+                        <dt class="date-text">请求时间：</dt>
+                        <dd flex>
+                            <div class="input-date"><datepicker language="ch" v-model="dateStart" ></datepicker></div>
+                            <div class="date-text">到</div>
+                            <div class="input-date"><datepicker language="ch" v-model="dateEnd"></datepicker></div>
+                        </dd>
+                    </dl>
+                    <div flex class="handle-btn">
+
+                        <b-btn class="btns" >查询</b-btn>
+                        <b-btn class="btns" >清空</b-btn>
+                        <b-btn class="btns" >添加短信请求</b-btn>
+                    </div>
+                </div>
+                
+            </div>
+            <div class="sms-table" flex-box="1">
+                <!-- <b-table :items="items" :fields="fields"  bordered>
+                    <template slot="experienceAmount" scope="item">{{ item.value | currencyFormat}}</template>
+                    <template slot="annualInterestRate" scope="item">{{ item.value | translatePate}}</template>
+                    <template slot="issueNode" scope="item">注册</template>
+                    <template slot="conditionProductPeriod" scope="item">累计投资{{item.value}}天以上产品超过{{item.item.conditionProductAmount}}元</template>
+                    <template slot="etStatus" scope="item">
+                        <template v-if="item.value == 0">待激活</template>
+                        <template v-if="item.value == 1">已激活</template>
+                        <template v-if="item.value == 2">已停用</template>
+                    </template>
+                    <template slot="createTime" scope="item">{{item.value | timeFormat}}</template>
+                    <template slot="operation" scope="item">
+                        <div v-if="item.item.etStatus == 0" flex="main:center">
+                            <b-btn class="btns" @click.native="addMarket(item.item.etUuid)">修改</b-btn>
+                            <b-btn class="btns" @click.native="updateMarket(item.item.etUuid,1)">激活</b-btn>
+                        </div>
+                        <div v-if="item.item.etStatus == 1">
+                            <b-btn class="btns" @click.native="updateMarket(item.item.etUuid,2)">停用</b-btn>
+                        </div>
+                    </template>
+                </b-table> -->
+            </div>
+            <div class="justify-content-center paging pages" flex-box="0" flex="main:center">
+                <div flex>
+                    <div>
+                        <b-pagination prev-text="上一页" next-text="下一页" hide-goto-end-buttons size="md" :total-rows="count" :per-page='perPage' v-model="pageNo" @click.native="pageChange()"></b-pagination>
+                    </div>
+                    <div class="total"><span>共{{ Math.ceil(count / perPage) }}页</span><span>共{{ count }}条</span></div>
+                </div>
+            </div>
+        </div>
+        <div class="sms-send-box shadow-box" flex="main:center cross:center">
+            <div class="sms-send-wrap">
+                <h6>发送短信请求</h6>
+                <ul class="sms-send-content">
+                    <li class="sms-content-list" flex>
+                        <div class="sms-content-left">添加用户：</div>
+                        <div class="sms-content-right">
+                            <div class="sms-tabs">
+                                <label for="every-add"><input type="radio" id="every-add" name="style" checked="" value="0" v-model="sendObj.tab">逐个添加</label>
+                                <label for="all-add"><input type="radio" name="style" id="all-add" value="1"  v-model="sendObj.tab" >批量添加</label>
+                            </div>
+                            <div class="sms-add-list">
+                                <template v-if="sendObj.tab==0">
+                                    <div flex class="cell-number-add" flex>
+                                        <div>输入用户名：</div>
+                                        <div class="add-space">
+                                            <b-form-input type="text" size="sm" maxlength="11" placeholder="请输入手机号" v-model="sendObj.cellNumber"></b-form-input>
+                                        </div>
+                                        <div style="font-size:0"><b-btn class="btns" @click.native="addNumber">添加</b-btn></div>
+                                    </div>
+                                    <ul class="cell-number-list clear-both">
+                                        <li v-for="(item,index) in sendObj.cellNumberList" >
+                                            <span>{{item}}</span><a href="javascript:;" @click="deletNumber(index)">删除</a>
+                                        </li>
+                                    </ul>
+                                </template>
+                                <template v-else>批量添加</template>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="sms-content-list" flex>
+                        <div class="sms-content-left">请求发送条数：</div>
+                        <div class="sms-content-right">
+                            
+                        </div>
+                    </li>
+                    <li class="sms-content-list" flex>
+                        <div class="sms-content-left">短信类别：</div>
+                        <div class="sms-content-right">
+                            
+                        </div>
+                    </li>
+                    <li class="sms-content-list" flex>
+                        <div class="sms-content-left">短信内容：</div>
+                        <div class="sms-content-right">
+                            
+                        </div>
+                    </li>
+                </ul>
+                <div class="sms-send-btn">
+                    <b-btn class="btns" >提交请求</b-btn>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+
+<script>
+    import $api from '../tools/api';
+    import {checkPhone} from '../tools/operation';
+    import Confirm from '../components/Confirm';
+    import Toast from '../components/Toast';
+    import datepicker from 'vue-date';
+    export default {
+        name: 'sms-check',
+        data(){
+            return {
+                requireUserName:'',
+                userName:'',
+                modelNum:'',
+                statusOptions:[
+                    {
+                        text: '全部',
+                        value: ''
+                    },
+                    {
+                        text: '待审核',
+                        value: 0
+                    },{
+                        text: '审核作废',
+                        value: 1
+                    },{
+                        text: '已审核',
+                        value: 2
+                    }
+                ],
+                statusSelected:'',
+                typeOptions:[
+                    {
+                        text: '全部',
+                        value: ''
+                    },
+                    {
+                        text: '产品上线通知',
+                        value: 0
+                    },{
+                        text: '优惠提醒',
+                        value: 1
+                    },{
+                        text: '客户激活',
+                        value: 2
+                    },{
+                        text: '邀请回归',
+                        value: 3
+                    },{
+                        text: '回访通知',
+                        value: 4
+                    }
+                ],
+                typeSelected:'',
+                dateStart:'',
+                dateEnd:'',
+                fields: {
+                    etUuid: { label: '请求编号' },
+                    experienceName:{label:'请求人'},
+                    experienceAmount: { label: '请求时间' },
+                    annualInterestRate: { label: '请求短信条数' },
+                    rateDays: { label: '模板编号' },
+                    issueNode: { label: '短信类别' },
+                    smsContent: { label: '短信内容' },
+                    etStatus: { label: '短信备注' },
+                    createTime: { label: '审核时间' },
+                    sendTime: { label: '发送时间' },
+                    status: { label: '状态' },
+                    remarks: { label: '备注' },
+                    operation: { label: '操作' },
+                },
+                items:[],
+                perPage:10,
+                count:30,
+                pageNo:1,
+                sendObj:{
+                    tab:0,
+                    cellNumber:'',
+                    cellNumberList:[],
+                }
+            }
+        },
+        created(){},
+        components: { datepicker },
+        computed: {},
+        methods: {
+            pageChange(){
+                console.log(this.pageNo);
+            },
+            //添加手机号
+            addNumber(){
+                let cellNumber = String(this.sendObj.cellNumber).replace(/\s+/g, "");
+                if(cellNumber.length < 1){
+                    Toast('请输入手机号！');
+                    return false;
+                }
+                if(!checkPhone(cellNumber)){
+                    Toast('手机格式输入有误！');
+                    return false;
+                }
+                this.sendObj.cellNumberList.push(cellNumber);
+            },
+            //删除手机号
+            deletNumber(index){
+                this.sendObj.cellNumberList.splice(index,1);
+            }
+        },
+        mounted(){},
+        destroyed(){
+
+        }
+    }
+</script>

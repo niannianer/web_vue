@@ -13,6 +13,7 @@
     "mint-ui": "^2.2.7",
     "qrcode": "^0.8.2",
     "vue": "^2.2.6",
+    "vue-date": "^1.1.7",
     "vue-router": "^2.3.1",
     "vuex": "^2.3.1",
     "weixin-js-sdk": "^1.2.0"
