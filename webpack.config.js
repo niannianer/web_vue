@@ -118,7 +118,7 @@ if (env == 'production' || env == 'test') {
     config.devtool = '';
     config.output.publicPath = '/dist/';
     if (env === 'production') {
-        config.output.publicPath = 'https://zj-static.zj-hf.cn/land/';
+        config.output.publicPath = '/dist/';
     }
     config.output.filename = '[name].[chunkhash:8].js';
     config.output.chunkFilename = '[chunkhash:8].[id].chunk.js';
