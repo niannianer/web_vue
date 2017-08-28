@@ -90,12 +90,37 @@
                 </div>
             </div>
         </div>
+        <div class="sms-tempalte-detail shadow-box"  flex="main:center cross:center" v-if="smsTemplateShow">
+            <div class="sms-tempalte-bell">
+                <h6>短信模板详情</h6>
+                <ul>
+                    <li flex>
+                        <div>模板编号：</div>
+                        <div>dx235235534</div>
+                    </li>
+                    <li flex>
+                        <div>短信类别：</div>
+                        <div>客户回归</div>
+                    </li>
+                    <li flex>
+                        <div>短信内容：</div>
+                        <div>【金疙瘩】尊敬的用户您好，我们将于2017.9.19推出年化12%的定期产品，欢迎到时抢购</div>
+                    </li>
+                    <li flex>
+                        <div>短信备注：</div>
+                        <div>170908金疙瘩客户回归短信</div>
+                    </li>
+                </ul>
+                <div flex="main:center"><b-btn class="btns" @click="smsTemplateShow = false">关闭</b-btn></div>
+            </div>
+        </div>
     </div>
 </template>
 
 <script>
     import $api from '../tools/api';
     import Confirm from '../components/Confirm';
+    import ConfirmOnly from '../components/ConfirmOnly';
     import datepicker from 'vue-date';
     export default {
         name: 'sms-record',
@@ -139,11 +164,16 @@
                 perPage:10,
                 count:30,
                 pageNo:1,
-                checkedAll:false
+                checkedAll:false,
+                smsTemplateShow:true
 
             }
         },
         created(){
+            /*ConfirmOnly({
+                title:'短信模板详情',
+                content:'模板编号：dx235235534<br>短信类别：客户回归<br>'
+            });*/
         },
         components: { datepicker },
         computed: {
