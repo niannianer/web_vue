@@ -91,7 +91,7 @@
                                     <div flex class="cell-number-add" flex>
                                         <div>输入用户名：</div>
                                         <div class="add-space">
-                                            <b-form-input type="text" size="sm" maxlength="11" placeholder="请输入手机号" v-model="sendObj.cellNumber"></b-form-input>
+                                            <b-form-input size="sm" maxlength="11" placeholder="请输入手机号" v-model="sendObj.cellNumber"></b-form-input>
                                         </div>
                                         <div style="font-size:0"><b-btn class="btns" @click.native="addNumber">添加</b-btn></div>
                                     </div>
@@ -104,10 +104,17 @@
                                 <div v-show="sendObj.tab==1">
                                     <div flex class="cell-number-add">
                                         <div>导入用户1：</div>
-                                        <div class="upload-excel">
-                                            <input type="file">
+                                        <div class="upload-excel" flex>
+                                            <vue-file-upload 
+                                                url='http://10.10.10.72:8888/file/fileUpload'
+                                                label=""
+                                                ref="vueFileUploader"
+                                                v-bind:events = "cbEvents"
+                                                v-bind:request-options = "reqopts"
+                                                v-on:onAdd = "onAddItem"></vue-file-upload>
+                                            <span class="excel-name">{{fileName}}</span>
                                         </div>
-                                        <div style="font-size:0"><b-btn class="btns" >确定</b-btn></div>
+                                        <div style="font-size:0"><b-btn class="btns" @click="uploadExcel">确定</b-btn></div>
                                     </div>
                                 </div>
                             </div>
@@ -134,10 +141,13 @@
                                     <div><b-form-select v-model="sendObj.smsTemplate" :options="sendObj.smsTemplateOptions" size="sm"></b-form-select></div>
                                 </div>
                                 <div class="sms-inner-contents" v-else>
-                                    <div><textarea class="form-control" v-model="sendObj.smsText"></textarea></div>
-                                    <p class="sms-text-size"><i>{{sendObj.smsText.length}}/300</i></p>
-                                    <div>
-                                        
+                                    <div><textarea class="form-control" v-model="sendObj.smsText" maxlength="300"></textarea></div>
+                                    <div class="sms-text-size">{{sendObj.smsText.length}}/300</div>
+                                    <p><i>注：建议输入不多于65个字，超过将拆分多条短信发送！</i></p>
+                                    <div flex class="sms-comment">
+                                        <span>短信备注：</span>
+                                        <b-form-input size="sm" maxlength="50" placeholder="备注" v-model="sendObj.cellNumber"></b-form-input>
+                                        <span class="lint">限制50个字以内</span>
                                     </div>
                                 </div>
                             </div>
@@ -230,7 +240,7 @@
     import Confirm from '../components/Confirm';
     import Toast from '../components/Toast';
     import datepicker from 'vue-date';
-    //import uploader from 'vue-simple-uploader';
+    import VueFileUpload  from 'vue-file-upload';
     //console.log('66',FileUpload);
     export default {
         name: 'sms-check',
@@ -239,8 +249,8 @@
                 requireUserName:'',
                 userName:'',
                 modelNum:'',
-                smsSendShow:false,
-                smsDetailShow:true,
+                smsSendShow:true,
+                smsDetailShow:false,
                 statusOptions:[
                     {
                         text: '全部',
@@ -352,11 +362,38 @@
                     pageNo:1,
                     tab:1
                 },
-                files: []
+                maxSize:2097152,
+                files:[],
+                //文件过滤器，只能上传excel
+                filters:[
+                    {
+                      name:"filter",
+                      fn(file){
+                          var type = '|' + file.type.slice(file.type.lastIndexOf('/') + 1) + '|';
+                          return '|xlsx|xls|'.indexOf(type) !== -1;
+                      }
+                    }
+                ],
+                //回调函数绑定
+                cbEvents:{
+                    onCompleteUpload:(file,response,status,header)=>{
+                      console.log(file);
+                      console.log("finish upload;")
+                    }
+                },
+                  //xhr请求附带参数
+                reqopts:{
+                    formData:{
+                      tokens:'tttttttttttttt'
+                    },
+                    responseType:'json',
+                    withCredentials:false
+                },
+                fileName:''
             }
         },
         created(){},
-        components: { datepicker},
+        components: { datepicker,VueFileUpload},
         computed: {
             messCount:function(){
                 if(this.sendObj.tab == 0){
@@ -390,12 +427,32 @@
             smsSubmit(){
 
             },
-            getFile($event){
-                
-            },
             //详情分页
             smsDetailChange(){
 
+            },
+            //
+            //添加上传文件
+            onAddItem(files){
+                this.files = files;
+                console.log(files);
+                let name = files[files.length-1].name;
+                if(!(/\.xl(s[xmb]|t[xm]|am)$/.test(name))){
+                    Toast('请选择excel文件上传！');
+                    return false;
+                }
+                if(files[files.length-1].size>this.maxSize){
+                    Toast('上传文件不要大于2M！');
+                    return false;
+                }
+                this.fileName = name;
+            },
+            uploadExcel(){
+                if(this.fileName){
+                    this.files[this.files.length-1].upload();
+                    return true;
+                }
+                Toast('请先选择上传文件！');
             }
         },
         mounted(){},
