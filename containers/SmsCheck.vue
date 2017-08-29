@@ -103,7 +103,7 @@
                                 </div>
                                 <div v-show="sendObj.tab==1">
                                     <div flex class="cell-number-add">
-                                        <div>导入用户1：</div>
+                                        <div>导入用户：</div>
                                         <div class="upload-excel" flex>
                                             <vue-file-upload 
                                                 url='http://10.10.10.72:8888/file/fileUpload'
@@ -147,7 +147,6 @@
                                     <div flex class="sms-comment">
                                         <span>短信备注：</span>
                                         <b-form-input size="sm" maxlength="50" placeholder="备注" v-model="sendObj.cellNumber"></b-form-input>
-                                        <span class="lint">限制50个字以内</span>
                                     </div>
                                 </div>
                             </div>
@@ -437,7 +436,8 @@
                 this.files = files;
                 console.log(files);
                 let name = files[files.length-1].name;
-                if(!(/\.xl(s[xmb]|t[xm]|am)$/.test(name))){
+                let type = files[files.length-1].type;
+                if(!(/\.xl(s[xmb]|t[xm]|am)$/.test(name)) || (/\.xl(s[xmb]|t[xm]|am)$/.test(type))){
                     Toast('请选择excel文件上传！');
                     return false;
                 }
