@@ -10,7 +10,7 @@
                 <li flex>
                     <label>短信内容：</label>
                     <div>
-                        <textarea class="form-control" cols="80" rows="4" maxlength="300" v-model="smsContent" @keydown="wordNoChange()"></textarea>
+                        <textarea class="form-control" cols="80" rows="8" maxlength="300" v-model="smsContent" @keydown="wordNoChange()"></textarea>
                         <div class="ps" flex="main:justify">
                             <i>注：建议输入不多于65个字，超过将拆分多条短信发送！</i>
                             <p><span v-model="smsNo">{{ smsNo}}</span>/300</p>
