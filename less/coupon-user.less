@@ -1,0 +1,54 @@
+@charset "UTF-8";
+@import "variables";
+
+.coupon-user {
+	.coupon-content {
+		.operateObj {
+			 > li {
+				margin-bottom: 20px;
+				label {
+					min-width: 100px;
+					line-height: 38px;
+					margin-bottom: 0;
+					margin-left: 5px;
+					cursor: pointer;
+				}
+				select {
+					font-size: 14px;
+				}
+				button {
+					margin-left: 10px;
+				}
+				.list-tabs {
+					margin-bottom: 20px;
+				}
+				.list-handle {
+					width: 400px;
+				}
+				.view-list {
+					margin-top: 20px;
+					width: 640px;
+					max-height: 400px;
+					overflow-x: hidden;
+					li {
+						width: 50%;
+						float: left;
+						margin-bottom: 10px;
+						a {
+							color: @color-primary;
+							&:hover {
+								text-decoration: underline;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	.submitBtn {
+		margin-left: 100px;
+		.btn {
+			padding: 0.5rem 1.5rem
+		}
+	}
+}
