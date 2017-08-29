@@ -37,17 +37,47 @@
             }
         }
     }
+    .sms-tempalte-detail{
+        width:100%;
+        height:100%;
+        .sms-tempalte-bell{
+            background-color: #fff;
+            position: relative;
+            border-radius: 6px;
+            padding: 15px;
+            width:520px;
+            h6{
+                color: @color-text;
+                text-align: center;
+            }
+            ul{
+                li{
+                    margin-bottom: 15px;
+                    div:first-child{
+                        width:20%;
+                        text-align: right;
+                    }
+                    div:last-child{
+                        width:80%;
+                    }
+                }
+            }
+        }
+    }
 }
 .sms-check{
-    .sms-send-box{
-        .sms-send-wrap{
+    .sms-box{
+        .sms-wrap{
+            position: relative;
             border-radius: 6px;
-            min-width: 520px;
             padding:15px;
             background-color: #fff;
             h6{
                 text-align: center;
             }
+        }
+        .sms-send-wrap{
+            min-width: 520px;
             .sms-send-content{
 
                 .sms-content-list{
@@ -61,8 +91,22 @@
                         .form-control{
                             height:30px;
                             border: 1px solid @color-active;
+                            width:170px;
                             &:hover {
                                 box-shadow: 0 0 10px rgba(79, 151, 235, .8) inset; 
+                            }
+                        }
+                        .sms-inner-s{
+                            //height: 146px;
+                            .sms-inner-contents{
+                                .form-control{
+                                    height:100px;
+                                    resize:none;
+                                    width:336px;
+                                }
+                                .sms-text-size{
+                                    text-align: right;
+                                }
                             }
                         }
                         .btns{
@@ -76,12 +120,18 @@
                                 }
                             }
                             .cell-number-list{
-                                height:100px;
+                                max-height:100px;
                                 overflow-y:auto;
                                 li{
                                     width:140px;
                                     float: left;
+                                    span{
+                                        padding-right:5px;
+                                    }
                                 }
+                            }
+                            .upload-excel{
+                                height:30px;
                             }
                             
                         }
@@ -89,8 +139,57 @@
                 }
             }
         }
-        
+        .sms-detail-wrap{
+            width: 480px;
+            .sms-detail-content{
+                .sms-list{
+                    li{
+                        margin-top:5px;
+                        >div:first-child{
+                            width:25%;
+                            text-align: right;
+                            padding-right: 5px;
+                        }
+                        >div:last-child{
+                            width:70%;
+                        }
+                    }
+                }
+                .sms-detail-table{
+                    margin-bottom: 15px;
+                    min-height: 200px;
+                }
+                .sms-audit{
+                    >li{
+                        line-height: 30px;
+                        label{
+                            margin:0 20px 0 0;
+                        }
+                    }
+                    .form-control{
+                        height:30px;
+                        width:140px;
+                        border: 1px solid @color-active;
+                        &:hover {
+                            box-shadow: 0 0 10px rgba(79, 151, 235, .8) inset; 
+                        }
+                    }
+                }
+            }
+        }
+        .sms-close{
+            display: block;
+            width:50px;
+            height:50px;
+            background:url(/images/close.png) no-repeat 50% 50%;
+            background-size: 30px;
+            cursor: pointer;
+            position: absolute;
+            right:0;
+            top:0;
+        }
     }
+    
 }
 
 

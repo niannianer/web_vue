@@ -38,7 +38,7 @@
 
                         <b-btn class="btns" >查询</b-btn>
                         <b-btn class="btns" >清空</b-btn>
-                        <b-btn class="btns" >批量重发</b-btn>
+                        <b-btn class="btns" @click="someSend">批量重发</b-btn>
                     </div>
                 </div>
                 
@@ -54,16 +54,19 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <!-- <tr v-for="(item,index) in items">
-                            <td>{{item.days}}</td>
-                            <td>{{item.registerCount}}</td>
-                            <td>{{item.startCount}}</td>
-                            <td>{{item.openAccountCount}}</td>
-                            <td>{{item.conPercent}}</td>
-                            <td>{{item.orderCount}}</td>
-                            <td>{{item.sumPaidAmount | currencyFormat}}</td>
-                            <td>{{item.expUserQuantity}}</td>
-                        </tr> -->
+                        <tr v-for="(item,index) in items" :key="index">
+                            <td><div><input type="checkBox" :checked="item.checked " @click="erverChecked(index)"></div></td>
+                            <td>{{item.userName}}</td>
+                            <td>{{item.realName}}</td>
+                            <td>{{item.requrireNum}}</td>
+                            <td>{{item.templateNum}}</td>
+                            <td>{{item.smsType}}</td>
+                            <td>{{item.smsInner}}</td>
+                            <td>{{item.smsBeizhu}}</td>
+                            <td>{{item.sendTime}}</td>
+                            <td>{{item.status}}</td>
+                            <td>{{item.remarks}}</td>
+                        </tr>
                     </tbody>
                 </table>
                 <!-- <b-table :items="items" :fields="fields"  bordered>
@@ -103,7 +106,7 @@
 
 <script>
     import $api from '../tools/api';
-    import Confirm from '../components/Confirm';
+    import ConfirmOnly from '../components/ConfirmOnly';
     import datepicker from 'vue-date';
     export default {
         name: 'sms-record',
@@ -156,21 +159,97 @@
                 dateEnd:'',
                 fields: {
                     checkBox:{label:'<input type="checkBox" checked="checked" @click="checkBox">'},
-                    etUuid: { label: '请求编号' },
-                    experienceName:{label:'请求人'},
-                    experienceAmount: { label: '请求时间' },
-                    annualInterestRate: { label: '请求短信条数' },
-                    rateDays: { label: '模板编号' },
-                    issueNode: { label: '短信类别' },
-                    smsContent: { label: '短信内容' },
-                    etStatus: { label: '短信备注' },
-                    createTime: { label: '审核时间' },
+                    userName: { label: '用户名' },
+                    realName: { label: '用户姓名' },
+                    requrireNum: { label: '请求编号' },
+                    templateNum: { label: '短信模板编号' },
+                    smsType: { label: '短信类别' },
+                    smsInner: { label: '短信内容' },
+                    smsBeizhu: { label: '短信备注' },
                     sendTime: { label: '发送时间' },
                     status: { label: '状态' },
                     remarks: { label: '备注' },
-                    operation: { label: '操作' },
                 },
-                items:[],
+                items:[
+                    {
+                        userName: '二三子',
+                        realName: '孔仲尼',
+                        requrireNum: '111111',
+                        templateNum: '222222222',
+                        smsType: '情人节祝福',
+                        smsInner: '一生平安',
+                        smsBeizhu: '很懒',
+                        sendTime: '2017-08-28',
+                        status: '未发送',
+                        remarks: '备注',
+                        checked:0
+                    },
+                    {
+                        userName: '二三子',
+                        realName: '孔仲尼',
+                        requrireNum: '111111',
+                        templateNum: '222222222',
+                        smsType: '情人节祝福',
+                        smsInner: '一生平安',
+                        smsBeizhu: '很懒',
+                        sendTime: '2017-08-28',
+                        status: '未发送',
+                        remarks: '备注',
+                        checked:0
+                    },
+                    {
+                        userName: '二三子',
+                        realName: '孔仲尼',
+                        requrireNum: '111111',
+                        templateNum: '222222222',
+                        smsType: '情人节祝福',
+                        smsInner: '一生平安',
+                        smsBeizhu: '很懒',
+                        sendTime: '2017-08-28',
+                        status: '未发送',
+                        remarks: '备注',
+                        checked:0
+                    },
+                    {
+                        userName: '二三子',
+                        realName: '孔仲尼',
+                        requrireNum: '111111',
+                        templateNum: '222222222',
+                        smsType: '情人节祝福',
+                        smsInner: '一生平安',
+                        smsBeizhu: '很懒',
+                        sendTime: '2017-08-28',
+                        status: '未发送',
+                        remarks: '备注',
+                        checked:0
+                    },
+                    {
+                        userName: '二三子',
+                        realName: '孔仲尼',
+                        requrireNum: '111111',
+                        templateNum: '222222222',
+                        smsType: '情人节祝福',
+                        smsInner: '一生平安',
+                        smsBeizhu: '很懒',
+                        sendTime: '2017-08-28',
+                        status: '未发送',
+                        remarks: '备注',
+                        checked:0
+                    },
+                    {
+                        userName: '二三子',
+                        realName: '孔仲尼',
+                        requrireNum: '111111',
+                        templateNum: '222222222',
+                        smsType: '情人节祝福',
+                        smsInner: '一生平安',
+                        smsBeizhu: '很懒',
+                        sendTime: '2017-08-28',
+                        status: '未发送',
+                        remarks: '备注',
+                        checked:0
+                    }
+                ],
                 perPage:10,
                 count:30,
                 pageNo:1,
@@ -179,6 +258,10 @@
             }
         },
         created(){
+            ConfirmOnly({
+                title:'短信批量发送',
+                content:'请求发送条数：89条'
+            });
         },
         components: { datepicker },
         computed: {
@@ -190,9 +273,36 @@
             checkAll(){
                 this.checkedAll = !this.checkedAll;
                 if(this.checkedAll){
-                    console.log('all');
+                    this.items.forEach((val,index)=>{
+                        val.checked = 1;
+                    });
+                    return false;
                 }
+                this.items.forEach((val,index)=>{
+                    val.checked = 0;
+                })
             },
+            someSend(){
+                if(this.checkedAll){
+                    console.log('all');
+                    return false;
+                }
+                this.items.forEach((val,index)=>{
+                    if(val.checked){
+                        console.log(index);
+                    }
+                })
+            },
+            erverChecked(index){
+                this.items[index].checked = !this.items[index].checked;
+                for (let value of this.items) {
+                    if(!value.checked){
+                        this.checkedAll = false;
+                        return false;
+                    }
+                }
+                this.checkedAll = true;
+            }
         },
         mounted(){},
         destroyed(){
