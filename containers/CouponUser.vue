@@ -13,7 +13,7 @@
                         <ul class="view-list">
                             <li v-for="batch in batchArr">
                                 {{ batch }}
-                                <a>删除</a>
+                                <a @click="arrRemove(batch,batchArr)">删除</a>
                             </li>
                         </ul>
                     </div>
@@ -34,14 +34,26 @@
                             <ul class="view-list">
                                 <li v-for="username in usernameArr">
                                     {{ username }}
-                                    <a>删除</a>
+                                    <a @click="arrRemove(username, usernameArr)">删除</a>
                                 </li>
                             </ul>
                         </div>
                         <div v-if="addType == 2" flex>
                             <label>导入用户：</label>
-                            <b-form-input></b-form-input>
-                            <b-button class="btns">确定</b-button>
+                            <div flex>
+                                <div class="upload-excel">
+                                    <vue-file-upload
+                                            url='http://10.10.10.72:8888/file/fileUpload'
+                                            label=""
+                                            ref="vueFileUploader"
+                                            v-bind:events = "cbEvents"
+                                            v-bind:request-options = "reqopts"
+                                            v-on:onAdd = "onAddItem">
+                                    </vue-file-upload>
+                                    <span class="excel-name">{{fileName}}</span>
+                                </div>
+                                <div><b-btn class="btns" @click="uploadExcel">确定</b-btn></div>
+                            </div>
                         </div>
                     </div>
                 </li>
@@ -94,7 +106,9 @@
     import $api from '../tools/api';
     import Confirm from '../components/Confirm';
     import Toast from '../components/Toast';
+    import ConfirmOnly from '../components/ConfirmOnly';
     import datepicker from 'vue-date';
+    import VueFileUpload  from 'vue-file-upload';
     export default {
         name: 'coupon-user',
         data(){
@@ -123,10 +137,40 @@
                 batchArr: [],
                 username: '',
                 usernameArr: [],
+
+                //文件上传
+                maxSize:2097152,
+                files:[],
+                //文件过滤器，只能上传excel
+                filters:[
+                    {
+                        name:"filter",
+                        fn(file){
+                            var type = '|' + file.type.slice(file.type.lastIndexOf('/') + 1) + '|';
+                            return '|xlsx|xls|'.indexOf(type) !== -1;
+                        }
+                    }
+                ],
+                //回调函数绑定
+                cbEvents:{
+                    onCompleteUpload:(file,response,status,header)=>{
+                        console.log(file);
+                        console.log("finish upload;")
+                    }
+                },
+                //xhr请求附带参数
+                reqopts:{
+                    formData:{
+                        tokens:'tttttttttttttt'
+                    },
+                    responseType:'json',
+                    withCredentials:false
+                },
+                fileName:''
             }
         },
         created(){},
-        components: { datepicker },
+        components: { datepicker, VueFileUpload },
         computed: {
         },
         methods: {
@@ -151,15 +195,30 @@
                 }
                 this.batchArr = batchArr;
             },
-            //批次号添加
+            //用户名添加
             usernameAdd() {
                 let username = this.username;
                 let usernameArr = this.usernameArr;
+                if (username.trim() == '') {
+                    Toast('请输入正确定用户名！');
+                    return;
+                }
                 if (usernameArr.indexOf(username) >= 0) {
                     Toast('不能重复添加同一用户名');
                     return;
                 }
                 usernameArr.push(username);
+/*
+                ConfirmOnly({
+                    title:'提示',
+                    content:'该用户非平台注册用户！'
+                });
+*/
+            },
+            //删除数组
+            arrRemove(removeItem, originArr) {
+                let pos = originArr.indexOf(removeItem);
+                originArr.splice(pos, 1);
             },
             //显示弹框
             popShowCtrl(type) {
@@ -170,6 +229,28 @@
                     this.couponPop.popType = 2;
                 }
             },
+            //添加上传文件
+            onAddItem(files){
+                this.files = files;
+                console.log(files);
+                let name = files[files.length-1].name;
+                if(!(/\.xl(s[xmb]|t[xm]|am)$/.test(name))){
+                    Toast('请选择excel文件上传！');
+                    return false;
+                }
+                if(files[files.length-1].size>this.maxSize){
+                    Toast('上传文件不要大于2M！');
+                    return false;
+                }
+                this.fileName = name;
+            },
+            uploadExcel(){
+                if(this.fileName){
+                    this.files[this.files.length-1].upload();
+                    return true;
+                }
+                Toast('请先选择上传文件！');
+            }
         },
         mounted(){},
         destroyed(){
