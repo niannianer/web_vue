@@ -74,6 +74,7 @@
             background-color: #fff;
             h6{
                 text-align: center;
+                color: @color-text;
             }
         }
         .sms-send-wrap{
@@ -82,6 +83,7 @@
 
                 .sms-content-list{
                     line-height: 30px;
+                    margin-bottom: 5px;
                     .sms-content-left{
                         width:120px;
                         text-align: right;
@@ -99,13 +101,19 @@
                         .sms-inner-s{
                             //height: 146px;
                             .sms-inner-contents{
-                                .form-control{
+                                textarea.form-control{
                                     height:100px;
                                     resize:none;
                                     width:336px;
                                 }
                                 .sms-text-size{
                                     text-align: right;
+                                }
+                                .sms-comment{
+                                    .lint{
+                                        padding-left: 10px;
+                                        color:@color-comment;
+                                    }
                                 }
                             }
                         }
@@ -132,6 +140,42 @@
                             }
                             .upload-excel{
                                 height:30px;
+                                font-size: 0;
+                                min-width: 96px;
+                                .fileupload-button{
+                                    padding: 0 10px;
+                                    line-height: 30px;
+                                    height:30px;
+                                    border-radius: .25rem;
+                                    width:52px;
+                                    &:after,&:before{
+                                        content: "";
+                                        display: block;
+                                        position: absolute;
+                                        background-color: #fff;
+                                        border-radius: 2px;
+                                        left:50%;
+                                        top:50%;
+                                    }
+                                    &:after{
+                                        width:16px;
+                                        height:2px;
+                                        margin:-1px 0 0 -8px;
+                                    }
+                                    &:before{
+                                        width:2px;
+                                        height:16px;
+                                        margin:-8px 0 0 -1px;
+                                    }
+                                }
+                                .excel-name{
+                                    font-size: 14px;
+                                    line-height: 30px;
+                                    max-width: 180px;
+                                    overflow:hidden;
+                                    text-overflow:ellipsis;
+                                    white-space: nowrap;
+                                }
                             }
                             
                         }
