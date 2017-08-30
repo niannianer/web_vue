@@ -28,10 +28,10 @@
                         <div v-if="addType == 1">
                             <div flex class="list-handle">
                                 <label>输入用户名：</label>
-                                <b-form-input v-model="username" maxlength="50"></b-form-input>
-                                <b-button class="btns" @click="usernameAdd">添加</b-button>
+                                <b-form-input v-model="username" maxlength="11"></b-form-input>
+                                <b-button class="btns" @click="usernameAdd(username)">添加</b-button>
                             </div>
-                            <ul class="view-list">
+                            <ul class="view-list username-list">
                                 <li v-for="username in usernameArr">
                                     {{ username }}
                                     <a @click="arrRemove(username, usernameArr)">删除</a>
@@ -40,7 +40,7 @@
                         </div>
                         <div v-if="addType == 2" flex>
                             <label>导入用户：</label>
-                            <div flex>
+                            <div flex class="upload">
                                 <div class="upload-excel">
                                     <vue-file-upload
                                             url='http://10.10.10.72:8888/file/fileUpload'
@@ -109,29 +109,13 @@
     import ConfirmOnly from '../components/ConfirmOnly';
     import datepicker from 'vue-date';
     import VueFileUpload  from 'vue-file-upload';
+    import {checkPhone} from '../tools/operation';
     export default {
         name: 'coupon-user',
         data(){
             return {
-                batchOptions: [
-                    {
-                        value: 'lq20170809213',
-                        text: 'lq20170809213-注册送20元红包'
-                    },{
-                        value: 'lq20170809214',
-                        text: 'lq20170809214-注册送1%加wfew息券'
-                    },{
-                        value: 'lq20170809215',
-                        text: 'lq20170809215-注册送1%fs加息券'
-                    },{
-                        value: 'lq20170809216',
-                        text: 'lq20170809216-efw%加息券'
-                    },{
-                        value: 'lq20170809217',
-                        text: 'lq201708w息券'
-                    },
-                ],
-                batchSelected: 'lq20170809213',
+                batchOptions: [],
+                batchSelected: '',
                 popShow: false,
                 addType: 1,
                 batchArr: [],
@@ -169,16 +153,17 @@
                 fileName:''
             }
         },
-        created(){},
-        components: { datepicker, VueFileUpload },
-        computed: {
+        created(){
+            this.getBatchs();
         },
+        components: { datepicker, VueFileUpload },
+        computed: {},
         methods: {
             //添加类型修改
             addTypeChange(type) {
                 this.addType = type;
             },
-            //批次号添加
+            //添加批次号
             batchAdd() {
                 let batchSelected = this.batchSelected;
                 let batchOptions = this.batchOptions;
@@ -195,19 +180,26 @@
                 }
                 this.batchArr = batchArr;
             },
-            //用户名添加
-            usernameAdd() {
-                let username = this.username;
+            //添加用户名
+            usernameAdd(username) {
+                username = username.trim();
                 let usernameArr = this.usernameArr;
-                if (username.trim() == '') {
+                if (username == '' || !checkPhone(username)) {
                     Toast('请输入正确定用户名！');
                     return;
+                } else {
+                    $api.get('/coupon/getUser',{
+                        userPhone: username
+                    }).then(res=>{
+                        if(res.code == 200){
+                            usernameArr.push(username);
+                        } else {
+                            if (res.code == 1001) {
+                                Toast('该用户非平台注册投资用户！');
+                            }
+                        }
+                    });
                 }
-                if (usernameArr.indexOf(username) >= 0) {
-                    Toast('不能重复添加同一用户名');
-                    return;
-                }
-                usernameArr.push(username);
 /*
                 ConfirmOnly({
                     title:'提示',
@@ -250,11 +242,23 @@
                     return true;
                 }
                 Toast('请先选择上传文件！');
-            }
+            },
+            //获取批次号
+            getBatchs() {
+                $api.get('/coupon/allCouponList',{
+
+                }).then(res=>{
+                    if(res.code == 200){
+                        let resBatchsList =  res.data;
+                        resBatchsList.forEach(item => {
+                            this.batchOptions.push({value: item.ccCode, text: item.ccCode + '-' + item.ccName});
+                        });
+                        this.batchSelected = resBatchsList[0].ccCode;
+                    }
+                });
+            },
         },
         mounted(){},
-        destroyed(){
-
-        }
+        destroyed(){}
     }
 </script>

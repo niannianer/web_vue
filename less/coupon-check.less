@@ -2,46 +2,55 @@
 @import "variables";
 
 .coupon-check {
-	.table-handle{
-		.table-input{
-			margin-bottom: 20px;
-			dl{
-				margin:0 20px 0 0;
-				line-height: 30px;
-				font-size: 0;
-				dt{
-					width:90px;
-					text-align: right;
-					font-size: 14px;
-				}
-				dd{
-					margin:0;font-size: 14px;
-					.form-control{
-						width:140px;
-						height:30px;
+	.coupon-content {
+		.table-handle{
+			.table-input{
+				margin-bottom: 20px;
+				dl{
+					margin:0 20px 0 0;
+					line-height: 30px;
+					font-size: 0;
+					dt{
+						width:90px;
+						text-align: right;
+						font-size: 14px;
 					}
-					.input-wrapper{
-						width:140px;
+					dd{
+						margin:0;font-size: 14px;
+						.form-control{
+							width:140px;
+							height:30px;
+						}
+						.input-wrapper{
+							width:140px;
+						}
 					}
 				}
-			}
-			dl:last-child{
-				margin:0;
-			}
-			.handle-btn{
-				button{
-					margin-left: 20px;
+				dl:last-child{
+					margin:0;
+				}
+				.handle-btn{
+					button{
+						margin-left: 20px;
+					}
 				}
 			}
 		}
-	}
-	.coupon-table {
-		input {
-			width: 12px;
-			height: 12px;
+		.coupon-table {
+			input {
+				width: 12px;
+				height: 12px;
+			}
 		}
 	}
-	.sms-box .sms-detail-wrap .sms-detail-content .sms-detail-table {
-		margin-top: 30px;
+	.sms-box .sms-detail-wrap .sms-detail-content {
+		.sms-detail-table {
+			margin-top: 30px;
+		}
+		.sms-audit {
+			.form-control {
+				width: 300px;
+			}
+		}
 	}
 }

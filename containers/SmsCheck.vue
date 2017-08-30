@@ -18,11 +18,11 @@
                     </dl>
                     <dl flex>
                         <dt>状态：</dt>
-                        <dd><b-form-select v-model="statusSelected" :options="statusOptions" size="sm"></b-form-select></b-form-input></dd>
+                        <dd><b-form-select v-model="statusSelected" :options="statusOptions" size="sm"></b-form-select></dd>
                     </dl>
                     <dl flex>
                         <dt>类别：</dt>
-                        <dd><b-form-select v-model="typeSelected" :options="typeOptions" size="sm"></b-form-select></b-form-input></dd>
+                        <dd><b-form-select v-model="typeSelected" :options="typeOptions" size="sm"></b-form-select></dd>
                     </dl>
                 </div>
                 <div class="table-input" flex="main:justify">
