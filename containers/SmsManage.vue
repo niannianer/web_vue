@@ -47,6 +47,9 @@
                     <template slot="templateContent" scope="item">
                         <div flex="main:center cross:center" :title="item.value"><span>{{item.value | ellipsisFormat}}</span></div>
                     </template>
+                    <template slot="templateDescription" scope="item">
+                        <div flex="main:center cross:center" :title="item.value"><span>{{item.value | ellipsisFormat}}</span></div>
+                    </template>
                     <template slot="createTime" scope="item">{{item.value | timeFormat}}</template>
                     <template slot="deleteFlag" scope="item">
                             <b-btn class="btns" @click.native="detail(item.item)">详情</b-btn>
@@ -137,7 +140,7 @@
                     templateNo: { label: '模板编号' },
                     smsType:{label:'类别'},
                     templateContent: { label: '内容',tdClass:'ellipsis'},
-                    templateDescription: { label: '备注' },
+                    templateDescription: { label: '备注',tdClass:'ellipsis'},
                     createTime: { label: '添加时间' },
                     deleteFlag: { label: '操作' }
                 },

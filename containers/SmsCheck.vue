@@ -34,7 +34,7 @@
                     <div flex class="handle-btn">
 
                         <b-btn class="btns" @click.stop="search">查询</b-btn>
-                        <b-btn class="btns" >清空</b-btn>
+                        <b-btn class="btns" @click.native="empty">清空</b-btn>
                         <b-btn class="btns" @click.native="addSms">添加短信请求</b-btn>
                     </div>
                 </div>
@@ -185,35 +185,45 @@
                     <ul class="sms-list">
                         <li flex>
                             <div>请求编号：</div>
-                            <div>11100000</div>
+                            <div>{{smsDetailItems.requestNo}}</div>
                         </li>
                         <li flex>
                             <div>请求人：</div>
-                            <div>rwrewr-张倩</div>
+                            <div>{{smsDetailItems.requestBy}}</div>
                         </li>
                         <li flex>
                             <div>请求时间：</div>
-                            <div>2017.09.09 12:21:35</div>
+                            <div>{{smsDetailItems.requestTime}}</div>
                         </li>
                         <li flex>
                             <div>请求发送条数：</div>
-                            <div>89条</div>
+                            <div>{{smsDetailItems.requestSmsNum}}条</div>
                         </li>
                         <li flex>
                             <div>模板编号：</div>
-                            <div>89条</div>
+                            <div>{{smsDetailItems.smsTemplateNo}}</div>
                         </li>
                         <li flex>
                             <div>短信类别：</div>
-                            <div>89条</div>
+                            <div>
+                                <template v-if="smsDetailItems.smsType == 1">产品上线通知</template>
+                                <template v-if="smsDetailItems.smsType == 2">优惠提醒</template>
+                                <template v-if="smsDetailItems.smsType == 3">客户激活</template>
+                                <template v-if="smsDetailItems.smsType == 4">邀请回归</template>
+                                <template v-if="smsDetailItems.smsType == 5">回访通知</template>
+                            </div>
                         </li>
                         <li flex>
                             <div>短信内容：</div>
-                            <div>89条</div>
+                            <div>{{smsDetailItems.smsContent}}</div>
                         </li>
                         <li flex>
                             <div>状态：</div>
-                            <div>待审核</div>
+                            <div>
+                                <template v-if="smsDetailItems.requestStatus == 1">待审核</template>
+                                <template v-if="smsDetailItems.requestStatus == -1">审核失败</template>
+                                <template v-if="smsDetailItems.requestStatus == 2">已审核</template>
+                            </div>
                         </li>
                     </ul>
                     <div class="sms-detail-table" flex="dir:top">
@@ -374,6 +384,7 @@
                     pageNo:1,
                     tab:1
                 },
+                smsDetailItems:null,
                 maxSize:2097152,
                 files:[],
                 //文件过滤器，只能上传excel
@@ -423,6 +434,15 @@
                 this.pageNo = 1;
                 this.getList();
             },
+            //清除
+            empty(){
+                this.requestBy = '';
+                this.smsTemplateNo = '';
+                this.auditStatus = 0;
+                this.smsType = 0;
+                this.beginDate = '';
+                this.endDate = '';
+            },
             addSms(){
                 this.smsSendShow = true;
             },
@@ -431,6 +451,7 @@
             },
             detail(item){
                 console.log(item);
+                this.smsDetailItems = item;
                 this.smsDetailShow = true;
             },
             getList(){

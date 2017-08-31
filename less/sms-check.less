@@ -183,6 +183,12 @@
                             }
                             
                         }
+                        .sms-inner-tabs{
+                            select.form-control{
+                                width:auto;
+                                max-width: 220px;
+                            }
+                        }
                     }
                 }
             }
@@ -190,6 +196,9 @@
         .sms-detail-wrap{
             width: 480px;
             .sms-detail-content{
+                max-height: 520px;
+                overflow-y:auto;
+                margin-bottom: 15px;
                 .sms-list{
                     li{
                         margin-top:5px;
@@ -208,6 +217,7 @@
                     min-height: 200px;
                 }
                 .sms-audit{
+                    margin:0;
                     >li{
                         line-height: 30px;
                         label{
