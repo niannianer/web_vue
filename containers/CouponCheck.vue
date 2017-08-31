@@ -6,11 +6,11 @@
                 <div class="table-input" flex="main:justify">
                     <dl flex>
                         <dt>审核编码：</dt>
-                        <dd><b-form-input type="text" size="sm" maxlength="20" v-model="checkCode" placeholder="请输入审核编码"></b-form-input></dd>
+                        <dd><b-form-input type="text" size="sm" maxlength="20" v-model="auditId" placeholder="请输入审核编码"></b-form-input></dd>
                     </dl>
                     <dl flex>
                         <dt>批次号：</dt>
-                        <dd><b-form-input type="text" size="sm" maxlength="20" v-model="batches" placeholder="请输入批次号"></b-form-input></dd>
+                        <dd><b-form-input type="text" size="sm" maxlength="20" v-model="ccCodes" placeholder="请输入批次号"></b-form-input></dd>
                     </dl>
                     <dl flex>
                         <dt class="date-text">创建日期：</dt>
@@ -28,7 +28,7 @@
                     </dl>
                     <div flex class="handle-btn">
                         <b-btn class="btns" @click="search">查询</b-btn>
-                        <b-btn class="btns">导出</b-btn>
+                        <!--<b-btn class="btns">导出</b-btn>-->
                         <b-btn class="btns" @click.native="addUser">添加</b-btn>
                         <b-btn class="btns"  @click="popShowCtrl(2)">批量审核</b-btn>
                     </div>
@@ -101,7 +101,7 @@
                 </div>
                 <div class="sms-detail-btn" flex="main:center">
                     <b-btn v-if="couponPop.popType == 1" class="btns" @click.stop="popShow = false">关闭</b-btn>
-                    <b-btn v-else class="btns" @click.stop="popShow = false;postAudit();">确定</b-btn>
+                    <b-btn v-else class="btns" @click.stop="postAudits">确定</b-btn>
                 </div>
                 <div class="sms-close" @click.stop="popShow = false"></div>
             </div>
@@ -118,19 +118,19 @@
         name: 'coupon-check',
         data(){
             return {
-                checkCode: '',
-                batches: '',
+                auditId: '',
+                ccCodes: '',
                 statusOptions: [
                     {
                         text: '全部',
-                        value: ''
+                        value: 0
                     },
                     {
                         text: '待审核',
-                        value: 0
+                        value: 1
                     },{
                         text: '审核作废',
-                        value: 1
+                        value: -1
                     },{
                         text: '已审核',
                         value: 2
@@ -151,17 +151,18 @@
                 ],
                 items: [],
                 isCheckedAll: false,
-                perPage: 10,
+                perPage: 20,
                 count: 0,
                 pageNo: 1,
                 popShow: false,
                 ingAuditId: '',
+                auditIdStr: '',
                 //详情、审核
                 couponPop:{
                     popType: 1,
                     fields: {
                         userName: { label: '用户名' },
-                        realName:{label:'用户姓名'},
+                        userPhone: {label:'用户姓名'},
                     },
                     items:[],
                     auditReason:'',
@@ -180,8 +181,13 @@
         methods: {
             //获取列表数据
             getTable() {
-                $api.get('/coupon/getCouponSpecifiedDistributionList?pageNo=1&pageSize=20',{
-
+                $api.get('/coupon/getCouponSpecifiedDistributionList',{
+                    pageNo: this.pageNo,
+                    pageSize: this.perPage,
+                    auditId: this.auditId,
+                    beginDate: this.dateStart,
+                    endDate: this.dateEnd,
+                    auditStatus: this.statusSelected
                 }).then(res=>{
                     if(res.code == 200){
                         this.items = res.data.items;
@@ -207,7 +213,7 @@
             },
             //分页
             pageChange(){
-                console.log(this.pageNo);
+                this.getTable();
             },
             //详情分页
             couponDetailChange(){
@@ -222,6 +228,7 @@
                     Toast('请选择结束时间')
                     return;
                 }
+                this.getTable();
             },
             //全选
             checkedAll() {
@@ -251,12 +258,18 @@
             },
             //显示弹框
             popShowCtrl(type, auditId) {
-                this.ingAuditId = auditId;
-                this.popShow = true;
                 if (type == 1) {
+                    this.ingAuditId = auditId;
+                    this.popShow = true;
                     this.couponPop.popType = 1;
                     this.getDetailTable(auditId);
                 } else {
+                    this.getAuditIds();
+                    if (this.auditIdStr == '') {
+                        Toast('您未选择任何条目');
+                        return;
+                    }
+                    this.popShow = true;
                     this.couponPop.popType = 2;
                 }
             },
@@ -265,36 +278,42 @@
                 location.href = 'coupon-add.html';
             },
             //获取选中审核编号
-            postAudit() {
-                let auditIdStr = '';
+            getAuditIds() {
                 for(let item of this.items) {
                     if (item.isChecked) {
-                        auditIdStr += item.auditId + ',';
+                        this.auditIdStr += item.auditId + ',';
                     }
                 }
-                this.isCheckedAll = false;
+            },
+            //上传审核结果
+            postAudits() {
                 if (this.couponPop.tab == 1) {
                     this.couponPop.auditReason = ''
+                } else {
+                    if ((this.couponPop.auditReason).trim() == '') {
+                        Toast('审核作废原因不能为空');
+                        return;
+                    }
                 }
-                alert(auditIdStr);
-                alert(this.couponPop.tab);
-                alert(this.couponPop.auditReason);
+                this.popShow = false;
+                this.isCheckedAll = false;
                 $api.post('/coupon/couponAudit',{
-                    auditId: auditIdStr,
+                    auditId: this.auditIdStr,
                     isAudited: this.couponPop.tab,
                     auditOpinion: this.couponPop.auditReason
                 }).then(res=>{
                     if(res.code == 200){
                         Toast('批量审核成功！');
-                        setTimeout(this.getTable(), 3000);
+                        setTimeout(function() {
+                            this.getTable();
+                        }, 3000);
                     }
                 });
-
-            },
+            }
         },
-        mounted(){},
+        mounted(){
+        },
         destroyed(){
-
         }
     }
 </script>
