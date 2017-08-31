@@ -19,7 +19,6 @@ export let setTitle = (title) => {
     }, 0);
 };
 
-
 import md5 from 'md5';
 import $api from './api';
 import  * as config from './config';
@@ -96,7 +95,7 @@ export let submitRecharge = (params) => {
         }
     })
 };
-//
+
 export let submitAuthorization = (pUserId) => {
     let form = document.createElement('form');
     form.setAttribute('method', 'post');
