@@ -5,47 +5,44 @@
             <div class="table-handle" flex-box="0">
                 <div class="table-input" flex="main:justify">
                     <dl flex>
-                        <dt>请求用户名：</dt>
-                        <dd><b-form-input type="text" size="sm" v-model="requireUserName" placeholder="请输入请求用户名"></b-form-input></dd>
-                    </dl>
-                    <dl flex>
-                        <dt>用户姓名：</dt>
-                        <dd><b-form-input type="text" size="sm" v-model="userName" placeholder="请输入用户姓名"></b-form-input></dd>
+                        <dt>请求人：</dt>
+                        <dd><b-form-input type="text" size="sm" v-model="requestBy" placeholder="请输入请求用户名"></b-form-input></dd>
                     </dl>
                     <dl flex>
                         <dt>模板编号：</dt>
-                        <dd><b-form-input type="text" size="sm" v-model="modelNum" placeholder="请输入模板编号"></b-form-input></dd>
+                        <dd><b-form-input type="text" size="sm" v-model="smsTemplateNo" placeholder="请输入模板编号"></b-form-input></dd>
                     </dl>
                     <dl flex>
                         <dt>状态：</dt>
-                        <dd><b-form-select v-model="statusSelected" :options="statusOptions" size="sm"></b-form-select></dd>
-                    </dl>
-                    <dl flex>
-                        <dt>类别：</dt>
-                        <dd><b-form-select v-model="typeSelected" :options="typeOptions" size="sm"></b-form-select></dd>
+                        <dd><b-form-select v-model="auditStatus" :options="auditStatusOptions" size="sm"></b-form-select></dd>
                     </dl>
                 </div>
                 <div class="table-input" flex="main:justify">
                     <dl flex>
+                        <dt>类别：</dt>
+                        <dd><b-form-select v-model="smsType" :options="smsTypeOptions" size="sm"></b-form-select></dd>
+                    </dl>
+
+                    <dl flex>
                         <dt class="date-text">请求时间：</dt>
                         <dd flex>
-                            <div class="input-date"><datepicker language="ch" v-model="dateStart" ></datepicker></div>
+                            <div class="input-date"><datepicker language="ch" v-model="beginDate"></datepicker></div>
                             <div class="date-text">到</div>
-                            <div class="input-date"><datepicker language="ch" v-model="dateEnd"></datepicker></div>
+                            <div class="input-date"><datepicker language="ch" v-model="endDate" :min="beginDate"></datepicker></div>
                         </dd>
                     </dl>
                     <div flex class="handle-btn">
 
-                        <b-btn class="btns" >查询</b-btn>
-                        <b-btn class="btns" >清空</b-btn>
-                        <b-btn class="btns" >添加短信请求</b-btn>
+                        <b-btn class="btns" @click.stop="search">查询</b-btn>
+                        <b-btn class="btns" @click.native="empty">清空</b-btn>
+                        <b-btn class="btns" @click.native="addSms">添加短信请求</b-btn>
                     </div>
                 </div>
                 
             </div>
             <div class="sms-table" flex-box="1">
-                <!-- <b-table :items="items" :fields="fields"  bordered>
-                    <template slot="experienceAmount" scope="item">{{ item.value | currencyFormat}}</template>
+                <b-table :items="items" :fields="fields"  bordered>
+                    <!-- <template slot="experienceAmount" scope="item">{{ item.value | currencyFormat}}</template>
                     <template slot="annualInterestRate" scope="item">{{ item.value | translatePate}}</template>
                     <template slot="issueNode" scope="item">注册</template>
                     <template slot="conditionProductPeriod" scope="item">累计投资{{item.value}}天以上产品超过{{item.item.conditionProductAmount}}元</template>
@@ -63,8 +60,29 @@
                         <div v-if="item.item.etStatus == 1">
                             <b-btn class="btns" @click.native="updateMarket(item.item.etUuid,2)">停用</b-btn>
                         </div>
+                    </template> -->
+                    <template slot="requestTime" scope="item">{{item.value | timeFormat}}</template>
+                    <template slot="smsType" scope="item">
+                        <template v-if="item.value == 1">产品上线通知</template>
+                        <template v-if="item.value == 2">优惠提醒</template>
+                        <template v-if="item.value == 3">客户激活</template>
+                        <template v-if="item.value == 4">邀请回归</template>
+                        <template v-if="item.value == 5">回访通知</template>
                     </template>
-                </b-table> -->
+                    <template slot="smsContent" scope="item">
+                        <div flex="main:center cross:center" :title="item.value"><span>{{item.value | ellipsisFormat}}</span></div>
+                    </template>
+                    <template slot="auditTime" scope="item">{{item.value | timeFormat}}</template>
+                    <template slot="requestStatus" scope="item">
+                        <template v-if="item.value == 1">待审核</template>
+                        <template v-if="item.value == -1">审核失败</template>
+                        <template v-if="item.value == 2">已审核</template>
+                    </template>
+                    <template slot="operation" scope="item">
+                        <b-btn class="btns" @click.native="detail(item.item)">详情</b-btn>
+                        <b-btn v-if="item.item.requestStatus == 1" class="btns" @click.native="addSms">审核</b-btn>
+                    </template>
+                </b-table>
             </div>
             <div class="justify-content-center paging pages" flex-box="0" flex="main:center">
                 <div flex>
@@ -96,7 +114,7 @@
                                         <div style="font-size:0"><b-btn class="btns" @click.native="addNumber">添加</b-btn></div>
                                     </div>
                                     <ul class="cell-number-list clear-both">
-                                        <li v-for="(item,index) in sendObj.cellNumberList" >
+                                        <li v-for="(item,index) in sendObj.userPhoneList" >
                                             <span>{{item}}</span><a href="javascript:;" @click="deletNumber(index)">删除</a>
                                         </li>
                                     </ul>
@@ -141,12 +159,12 @@
                                     <div><b-form-select v-model="sendObj.smsTemplate" :options="sendObj.smsTemplateOptions" size="sm"></b-form-select></div>
                                 </div>
                                 <div class="sms-inner-contents" v-else>
-                                    <div><textarea class="form-control" v-model="sendObj.smsText" maxlength="300"></textarea></div>
-                                    <div class="sms-text-size">{{sendObj.smsText.length}}/300</div>
+                                    <div><textarea class="form-control" v-model="sendObj.smsContent" maxlength="300"></textarea></div>
+                                    <div class="sms-text-size">{{sendObj.smsContent.length}}/300</div>
                                     <p><i>注：建议输入不多于65个字，超过将拆分多条短信发送！</i></p>
                                     <div flex class="sms-comment">
                                         <span>短信备注：</span>
-                                        <b-form-input size="sm" maxlength="50" placeholder="备注" v-model="sendObj.cellNumber"></b-form-input>
+                                        <b-form-input size="sm" maxlength="50" placeholder="备注" v-model="sendObj.smsDescription"></b-form-input>
                                     </div>
                                 </div>
                             </div>
@@ -167,35 +185,45 @@
                     <ul class="sms-list">
                         <li flex>
                             <div>请求编号：</div>
-                            <div>11100000</div>
+                            <div>{{smsDetailItems.requestNo}}</div>
                         </li>
                         <li flex>
                             <div>请求人：</div>
-                            <div>rwrewr-张倩</div>
+                            <div>{{smsDetailItems.requestBy}}</div>
                         </li>
                         <li flex>
                             <div>请求时间：</div>
-                            <div>2017.09.09 12:21:35</div>
+                            <div>{{smsDetailItems.requestTime}}</div>
                         </li>
                         <li flex>
                             <div>请求发送条数：</div>
-                            <div>89条</div>
+                            <div>{{smsDetailItems.requestSmsNum}}条</div>
                         </li>
                         <li flex>
                             <div>模板编号：</div>
-                            <div>89条</div>
+                            <div>{{smsDetailItems.smsTemplateNo}}</div>
                         </li>
                         <li flex>
                             <div>短信类别：</div>
-                            <div>89条</div>
+                            <div>
+                                <template v-if="smsDetailItems.smsType == 1">产品上线通知</template>
+                                <template v-if="smsDetailItems.smsType == 2">优惠提醒</template>
+                                <template v-if="smsDetailItems.smsType == 3">客户激活</template>
+                                <template v-if="smsDetailItems.smsType == 4">邀请回归</template>
+                                <template v-if="smsDetailItems.smsType == 5">回访通知</template>
+                            </div>
                         </li>
                         <li flex>
                             <div>短信内容：</div>
-                            <div>89条</div>
+                            <div>{{smsDetailItems.smsContent}}</div>
                         </li>
                         <li flex>
                             <div>状态：</div>
-                            <div>待审核</div>
+                            <div>
+                                <template v-if="smsDetailItems.requestStatus == 1">待审核</template>
+                                <template v-if="smsDetailItems.requestStatus == -1">审核失败</template>
+                                <template v-if="smsDetailItems.requestStatus == 2">已审核</template>
+                            </div>
                         </li>
                     </ul>
                     <div class="sms-detail-table" flex="dir:top">
@@ -245,108 +273,103 @@
         name: 'sms-check',
         data(){
             return {
-                requireUserName:'',
-                userName:'',
-                modelNum:'',
-                smsSendShow:true,
+                requestBy:'',
+                smsTemplateNo:'',
+                smsSendShow:false,
                 smsDetailShow:false,
-                statusOptions:[
+                auditStatusOptions:[
                     {
                         text: '全部',
-                        value: ''
+                        value: 0
                     },
                     {
                         text: '待审核',
-                        value: 0
+                        value: 1
                     },{
                         text: '审核作废',
-                        value: 1
+                        value: -1
                     },{
                         text: '已审核',
                         value: 2
                     }
                 ],
-                statusSelected:'',
-                typeOptions:[
+                auditStatus:0,
+                smsTypeOptions:[
                     {
                         text: '全部',
-                        value: ''
+                        value: 0
                     },
                     {
                         text: '产品上线通知',
-                        value: 0
-                    },{
-                        text: '优惠提醒',
                         value: 1
                     },{
-                        text: '客户激活',
+                        text: '优惠提醒',
                         value: 2
                     },{
-                        text: '邀请回归',
+                        text: '客户激活',
                         value: 3
                     },{
-                        text: '回访通知',
+                        text: '邀请回归',
                         value: 4
+                    },{
+                        text: '回访通知',
+                        value: 5
                     }
                 ],
-                typeSelected:'',
-                dateStart:'',
-                dateEnd:'',
+                smsType:0,
+                beginDate:'',
+                endDate:'',
                 fields: {
-                    etUuid: { label: '请求编号' },
-                    experienceName:{label:'请求人'},
-                    experienceAmount: { label: '请求时间' },
-                    annualInterestRate: { label: '请求短信条数' },
-                    rateDays: { label: '模板编号' },
-                    issueNode: { label: '短信类别' },
-                    smsContent: { label: '短信内容' },
-                    etStatus: { label: '短信备注' },
-                    createTime: { label: '审核时间' },
-                    sendTime: { label: '发送时间' },
-                    status: { label: '状态' },
-                    remarks: { label: '备注' },
+                    requestNo: { label: '请求编号' },
+                    requestBy:{label:'请求人'},
+                    requestTime: { label: '请求时间' },
+                    requestSmsNum: { label: '请求短信条数' },
+                    smsTemplateNo: { label: '模板编号' },
+                    smsType: { label: '短信类别' },
+                    smsContent: { label: '短信内容',tdClass:'ellipsis' },
+                    smsDescription: { label: '短信备注' },
+                    auditTime: { label: '审核时间' },
+                    requestStatus: { label: '状态' },
+                    requestDescription: { label: '备注' },
                     operation: { label: '操作' },
                 },
                 items:[],
-                perPage:10,
-                count:30,
+                perPage:20,
+                count:0,
                 pageNo:1,
                 sendObj:{
                     tab:0,
                     cellNumber:'',
-                    cellNumberList:[],
+                    userPhoneList:[],
                     innerTab:0,
-                    smsText:'',
+                    smsContent:'',
+                    smsDescription:'',
                     smsTypeOptions:[
                         {
-                            value:0,
-                            text:'客户回归',
-                        },
-                        {
-                            value:1,
-                            text:'list1'
-                        },
-                        {
-                            value:2,
-                            text:'list2'
+                            text: '产品上线通知',
+                            value: 1
+                        },{
+                            text: '优惠提醒',
+                            value: 2
+                        },{
+                            text: '客户激活',
+                            value: 3
+                        },{
+                            text: '邀请回归',
+                            value: 4
+                        },{
+                            text: '回访通知',
+                            value: 5
                         }
                     ],
-                    smsType:0,
+                    smsType:1,
                     smsTemplateOptions:[
                         {
-                            value:0,
-                            text:'生日快乐',
-                        },
-                        {
-                            value:1,
-                            text:'情人节快乐'
-                        },
-                        {
-                            value:2,
-                            text:'没了'
+                            value:'DX20170830112',
+                            text:'DX20170830112-生日短信',
                         }
                     ],
-                    smsTemplate:0
+                    smsTemplate:'DX20170830112'
                 },
                 smsDetail:{
                     operate:true,
@@ -356,11 +379,12 @@
                     },
                     items:[],
                     auditReason:'',
-                    perPage:10,
+                    perPage:0,
                     count:30,
                     pageNo:1,
                     tab:1
                 },
+                smsDetailItems:null,
                 maxSize:2097152,
                 files:[],
                 //文件过滤器，只能上传excel
@@ -391,19 +415,61 @@
                 fileName:''
             }
         },
-        created(){},
+        created(){
+            this.getList();
+            
+        },
         components: { datepicker,VueFileUpload},
         computed: {
             messCount:function(){
                 if(this.sendObj.tab == 0){
-                    return (this.sendObj.cellNumberList.length);
+                    return (this.sendObj.userPhoneList.length);
                 }
                 return '未上传'
             }
         },
         methods: {
+            //查询
+            search(){
+                this.pageNo = 1;
+                this.getList();
+            },
+            //清除
+            empty(){
+                this.requestBy = '';
+                this.smsTemplateNo = '';
+                this.auditStatus = 0;
+                this.smsType = 0;
+                this.beginDate = '';
+                this.endDate = '';
+            },
+            addSms(){
+                this.smsSendShow = true;
+            },
             pageChange(){
                 console.log(this.pageNo);
+            },
+            detail(item){
+                console.log(item);
+                this.smsDetailItems = item;
+                this.smsDetailShow = true;
+            },
+            getList(){
+                $api.get('/message/lstSmsSendRequest',{
+                    requestBy:this.requestBy,//请求人
+                    smsTemplateNo:this.smsTemplateNo,//模板编号
+                    auditStatus:this.auditStatus,//0全部，-1审核作废, 1待审核, 2审核通过
+                    smsType:this.smsType,//短信类别, 1产品上线通知， 2优惠提醒， 3客户激活， 4邀请回归， 5回访通知
+                    /*beginDate:this.beginDate,//请求时间_起始
+                    endDate:this.endDate,//请求时间_结束*/
+                    pageSize:this.perPage,//数据条数
+                    pageNo:this.pageNo//页码
+                }).then((res)=>{
+                    if(res.code == 200){
+                        this.count = res.data.totalCount;
+                        this.items = res.data.items;
+                    }
+                });
             },
             //添加手机号
             addNumber(){
@@ -416,15 +482,48 @@
                     Toast('手机格式输入有误！');
                     return false;
                 }
-                this.sendObj.cellNumberList.push(cellNumber);
+                this.sendObj.userPhoneList.push(cellNumber);
             },
             //删除手机号
             deletNumber(index){
-                this.sendObj.cellNumberList.splice(index,1);
+                this.sendObj.userPhoneList.splice(index,1);
             },
             //提交请求
             smsSubmit(){
-
+                if(this.messCount < 1){
+                    Toast('请先添加手机号！');
+                    return false;
+                }
+                if(this.sendObj.innerTab){
+                    //自定义
+                    if(this.sendObj.smsContent.trim().length<1){
+                        Toast('短信内容不能为空！');
+                        return false;
+                    }
+                    if(this.sendObj.smsDescription.trim().length<1){
+                        Toast('短信备注不能为空！');
+                        return false;
+                    }
+                }
+                $api.postJson('/message/insertSmsSendRequestByList',{
+                    userPhoneList:this.sendObj.userPhoneList,
+                    smsType:this.sendObj.smsType,
+                    smsTemplateNo:this.sendObj.smsTemplateNo,
+                    smsContent:this.sendObj.smsContent,
+                    smsDescription:this.sendObj.smsDescription,
+                }).then((res)=>{
+                    console.log(res);
+                    if(res.code == 200){
+                        this.smsSendShow = false;
+                        this.sendObj.tab = 0;
+                        this.sendObj.cellNumber = '';
+                        this.sendObj.userPhoneList = [];
+                        this.sendObj.innerTab = 0;
+                        this.sendObj.smsContent = '';
+                        this.sendObj.smsDescription = '';
+                        this.sendObj.smsType = 1;
+                    }
+                });
             },
             //详情分页
             smsDetailChange(){

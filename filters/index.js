@@ -9,7 +9,7 @@ export let textToHtml =(input)=>{
 };
 export let timeFormat = (input) => {
     if ((input == null) || (input == undefined)) {
-        return '--';
+        return '';
     }
     let newDate = new Date();
     newDate.setTime(input);
@@ -77,5 +77,15 @@ export let currencyFormat = (input) => {
     let ouputs = input.toString();
     ouputs = ouputs.split('.');
     return ouputs[0].replace(/(\d)(?=(\d{3})+$)/g, '$1,') + '.' + add0(ouputs[1]);
+};
+export let ellipsisFormat = (input) => {
+    if ((input == null) || (input == undefined)) {
+        return '';
+    }
+    let ouputs = input.toString();
+    if(ouputs.length>8){
+        ouputs = ouputs.substring(0,8)+"...";
+    }
+    return ouputs;
 };
 

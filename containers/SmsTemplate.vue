@@ -10,21 +10,21 @@
                 <li flex>
                     <label>短信内容：</label>
                     <div>
-                        <textarea class="form-control" cols="80" rows="8" maxlength="300" v-model="smsContent" @keydown="wordNoChange()"></textarea>
+                        <textarea class="form-control" cols="80" rows="8" maxlength="300" v-model="templateContent"></textarea>
                         <div class="ps" flex="main:justify">
                             <i>注：建议输入不多于65个字，超过将拆分多条短信发送！</i>
-                            <p><span v-model="smsNo">{{ smsNo}}</span>/300</p>
+                            <p><span>{{String(templateContent).length}}</span>/300</p>
                         </div>
                     </div>
                 </li>
                 <li flex>
                     <label>短信备注：</label>
-                    <div><b-form-input type="text" maxlength="50" v-model="remarks"></b-form-input></div>
+                    <div><b-form-input type="text" maxlength="50" v-model="templateDescription"></b-form-input></div>
                 </li>
             </ul>
             <div class="tempate-btns">
-                <b-btn class="btns" @click="submit()">保存</b-btn>
-                <b-btn class="btns">取消</b-btn>
+                <b-btn class="btns" @click="submit(1)">保存</b-btn>
+                <b-btn class="btns" @click="submit(0)">取消</b-btn>
             </div>
         </div>
     </div>
@@ -38,9 +38,8 @@
         data(){
             return {
                 smsType: '1',
-                smsNo: 0,
-                smsContent: '',
-                remarks: '',
+                templateContent: '',
+                templateDescription: '',
                 smsTypeOptions: [
                     {
                         value: '1',
@@ -58,27 +57,43 @@
                         value: '5',
                         text: '回访通知'
                     },
-                ]
+                ],
+                submitClick:true
             }
         },
         created(){},
         computed: {},
         methods: {
-            //文本框字数提示
-            wordNoChange() {
-                this.smsNo = this.smsContent.length;
-            },
             //保存
-            submit() {
-                if(this.smsContent.trim().length <= 0) {
-                    Toast('短信内容不能为空');
-                    return;
+            submit(type) {
+                if(type){
+                    if(!this.submitClick){
+                        return false;
+                    }
+                    this.submitClick = false;
+                    if(this.templateContent.trim().length <= 0) {
+                        Toast('短信内容不能为空');
+                        return;
+                    }
+                    if(this.templateDescription.trim().length <= 0) {
+                        Toast('短信备注不能为空');
+                        return;
+                    }
+                    $api.postJson('/smsTemplate',{
+                        "smsType":this.smsType,
+                        "templateContent":this.templateContent,
+                        "templateDescription":this.templateDescription
+                    }).then((res)=>{
+                        this.submitClick = true;
+                        if(res.code == 200){
+                            location.href = 'sms-manage.html';
+                        }else{
+                            Toast(res.message || '发生错误，请重试');
+                        }
+                    });
+                    return ;
                 }
-                if(this.remarks.trim().length <= 0) {
-                    Toast('短信备注不能为空');
-                    return;
-                }
-                Toast('成功');
+                location.href = 'sms-manage.html';
             }
         },
         destroyed(){}
