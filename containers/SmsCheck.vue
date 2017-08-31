@@ -42,25 +42,6 @@
             </div>
             <div class="sms-table" flex-box="1">
                 <b-table :items="items" :fields="fields"  bordered>
-                    <!-- <template slot="experienceAmount" scope="item">{{ item.value | currencyFormat}}</template>
-                    <template slot="annualInterestRate" scope="item">{{ item.value | translatePate}}</template>
-                    <template slot="issueNode" scope="item">注册</template>
-                    <template slot="conditionProductPeriod" scope="item">累计投资{{item.value}}天以上产品超过{{item.item.conditionProductAmount}}元</template>
-                    <template slot="etStatus" scope="item">
-                        <template v-if="item.value == 0">待激活</template>
-                        <template v-if="item.value == 1">已激活</template>
-                        <template v-if="item.value == 2">已停用</template>
-                    </template>
-                    <template slot="createTime" scope="item">{{item.value | timeFormat}}</template>
-                    <template slot="operation" scope="item">
-                        <div v-if="item.item.etStatus == 0" flex="main:center">
-                            <b-btn class="btns" @click.native="addMarket(item.item.etUuid)">修改</b-btn>
-                            <b-btn class="btns" @click.native="updateMarket(item.item.etUuid,1)">激活</b-btn>
-                        </div>
-                        <div v-if="item.item.etStatus == 1">
-                            <b-btn class="btns" @click.native="updateMarket(item.item.etUuid,2)">停用</b-btn>
-                        </div>
-                    </template> -->
                     <template slot="requestTime" scope="item">{{item.value | timeFormat}}</template>
                     <template slot="smsType" scope="item">
                         <template v-if="item.value == 1">产品上线通知</template>
@@ -72,6 +53,9 @@
                     <template slot="smsContent" scope="item">
                         <div flex="main:center cross:center" :title="item.value"><span>{{item.value | ellipsisFormat}}</span></div>
                     </template>
+                    <template slot="smsDescription" scope="item">
+                        <div flex="main:center cross:center" :title="item.value"><span>{{item.value | ellipsisFormat}}</span></div>
+                    </template>
                     <template slot="auditTime" scope="item">{{item.value | timeFormat}}</template>
                     <template slot="requestStatus" scope="item">
                         <template v-if="item.value == 1">待审核</template>
@@ -79,8 +63,8 @@
                         <template v-if="item.value == 2">已审核</template>
                     </template>
                     <template slot="operation" scope="item">
-                        <b-btn class="btns" @click.native="detail(item.item)">详情</b-btn>
-                        <b-btn v-if="item.item.requestStatus == 1" class="btns" @click.native="addSms">审核</b-btn>
+                        <b-btn class="btns" @click.native="detail(item.item,0)">详情</b-btn>
+                        <b-btn v-if="item.item.requestStatus == 1" class="btns" @click.native="detail(item.item,1)">审核</b-btn>
                     </template>
                 </b-table>
             </div>
@@ -180,7 +164,7 @@
         </div>
         <div class="sms-box shadow-box" flex="main:center cross:center" v-if="smsDetailShow">
             <div class="sms-detail-wrap sms-wrap">
-                <h6>短信发送详情</h6>
+                <h6>{{smsDetail.title}}</h6>
                 <div class="sms-detail-content">
                     <ul class="sms-list">
                         <li flex>
@@ -237,7 +221,7 @@
                                 <div>
                                     <b-pagination prev-text="上一页" next-text="下一页" hide-goto-end-buttons size="md" :total-rows="smsDetail.count" :per-page='smsDetail.perPage' v-model="smsDetail.pageNo" @click.native="smsDetailChange()"></b-pagination>
                                 </div>
-                                <div class="total"><span>共{{ Math.ceil(count / perPage) }}页</span><span>共{{ count }}条</span></div>
+                                <div class="total"><span>共{{ Math.ceil(smsDetail.count / smsDetail.perPage) }}页</span><span>共{{ smsDetail.count }}条</span></div>
                             </div>
                         </div>
                     </div>
@@ -253,7 +237,7 @@
                 </div>
                 <div class="sms-detail-btn" flex="main:center">
                     <b-btn v-if="!smsDetail.operate" class="btns" @click.stop="smsDetailShow = false">关闭</b-btn>
-                    <b-btn  v-else class="btns" @click.stop="smsDetailShow = false">确定</b-btn>
+                    <b-btn  v-else class="btns" @click.native="audit">确定</b-btn>
                 </div>
                 <div class="sms-close" @click.stop="smsDetailShow = false"></div>
             </div>
@@ -322,16 +306,16 @@
                 fields: {
                     requestNo: { label: '请求编号' },
                     requestBy:{label:'请求人'},
-                    requestTime: { label: '请求时间' },
-                    requestSmsNum: { label: '请求短信条数' },
-                    smsTemplateNo: { label: '模板编号' },
-                    smsType: { label: '短信类别' },
-                    smsContent: { label: '短信内容',tdClass:'ellipsis' },
-                    smsDescription: { label: '短信备注' },
-                    auditTime: { label: '审核时间' },
+                    requestTime: { label: '请求时间',thStyle:{minWidth:"150px"} },
+                    requestSmsNum: { label: '请求短信条数',thStyle:{minWidth:"96px"} },
+                    smsTemplateNo: { label: '模板编号',thStyle:{minWidth:"68px"} },
+                    smsType: { label: '短信类别',thStyle:{minWidth:"86px"} },
+                    smsContent: { label: '短信内容',tdClass:'ellipsis',thStyle:{minWidth:"66px"} },
+                    smsDescription: { label: '短信备注',tdClass:'ellipsis',thStyle:{minWidth:"66px"}},
+                    auditTime: { label: '审核时间',thStyle:{minWidth:"150px"} },
                     requestStatus: { label: '状态' },
                     requestDescription: { label: '备注' },
-                    operation: { label: '操作' },
+                    operation: { label: '操作',thStyle:{width:"120px"} },
                 },
                 items:[],
                 perPage:20,
@@ -373,14 +357,15 @@
                 },
                 smsDetail:{
                     operate:true,
+                    title:'短信发送详情',
                     fields: {
                         userName: { label: '用户名' },
                         realName:{label:'姓名'},
                     },
                     items:[],
                     auditReason:'',
-                    perPage:0,
-                    count:30,
+                    perPage:5,
+                    count:0,
                     pageNo:1,
                     tab:1
                 },
@@ -412,7 +397,8 @@
                     responseType:'json',
                     withCredentials:false
                 },
-                fileName:''
+                fileName:'',
+                submitClick:true
             }
         },
         created(){
@@ -442,6 +428,7 @@
                 this.smsType = 0;
                 this.beginDate = '';
                 this.endDate = '';
+                console.log(this.smsType);
             },
             addSms(){
                 this.smsSendShow = true;
@@ -449,10 +436,28 @@
             pageChange(){
                 console.log(this.pageNo);
             },
-            detail(item){
-                console.log(item);
+            detail(item,type){
                 this.smsDetailItems = item;
+                console.log(item)
+                $api.get('/message/lstSmsSendRequestDetail',{
+                    auditId:item.id,
+                    pageSize:this.smsDetail.perPage,
+                    pageNo:this.smsDetail.pageNo
+                }).then((res)=>{
+                    if(res.code == 200){
+                        this.smsDetail.count = res.data.totalCount;
+                        this.smsDetail.items = res.data.items;
+                    }
+                });
                 this.smsDetailShow = true;
+                if(type){
+                    //审核
+                    this.smsDetail.title = '短信发送审核';
+                    this.smsDetail.operate = true;
+                    return false;
+                }
+                this.smsDetail.title = '短信发送详情';
+                this.smsDetail.operate = false;
             },
             getList(){
                 $api.get('/message/lstSmsSendRequest',{
@@ -490,6 +495,10 @@
             },
             //提交请求
             smsSubmit(){
+                if(!this.submitClick){
+                    //避免重复提交
+                    return false;
+                }
                 if(this.messCount < 1){
                     Toast('请先添加手机号！');
                     return false;
@@ -505,14 +514,15 @@
                         return false;
                     }
                 }
-                $api.postJson('/message/insertSmsSendRequestByList',{
+                this.submitClick = false;
+                $api.post('/message/insertSmsSendRequestByList',{
                     userPhoneList:this.sendObj.userPhoneList,
                     smsType:this.sendObj.smsType,
                     smsTemplateNo:this.sendObj.smsTemplateNo,
                     smsContent:this.sendObj.smsContent,
                     smsDescription:this.sendObj.smsDescription,
                 }).then((res)=>{
-                    console.log(res);
+                    this.submitClick = true;
                     if(res.code == 200){
                         this.smsSendShow = false;
                         this.sendObj.tab = 0;
@@ -522,6 +532,11 @@
                         this.sendObj.smsContent = '';
                         this.sendObj.smsDescription = '';
                         this.sendObj.smsType = 1;
+                        this.empty();
+                        this.pageNo = 1;
+                        this.getList();
+                    }else{
+                        Toast(res.message || '服务器错误！');
                     }
                 });
             },
@@ -529,7 +544,23 @@
             smsDetailChange(){
 
             },
-            //
+            //确定审核
+            audit(){
+                if(!this.submitClick){
+                    //避免重复提交
+                    return false;
+                }
+                this.submitClick = false;
+                $api.post('/check',{}).then((res)=>{
+                    this.submitClick = true;
+                    if(res.code == 200){
+                        this.smsDetailShow = false;
+                        this.getList();
+                    }else{
+                        Toast(res.message || '服务器错误！');
+                    }
+                });
+            },
             //添加上传文件
             onAddItem(files){
                 this.files = files;

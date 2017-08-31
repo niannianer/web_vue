@@ -78,40 +78,9 @@ let post = (path, data = {}) => {
     })
 
 };
-let postJson = (path, data = {}) => {
-    data.callSystemID = '1007';
-    let  url = `${serverUrl + path}`;
-    return axios({
-        url,
-        method: 'post',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        params: {
-            t: new Date().getTime()
-        },
-        withCredentials: true,
-        data: data
-    }).then(response => {
-        if (response.status == 200) {
-            return response.data;
-        } else {
-            return {};
-        }
-    }).then(data => {
-        if (data.code == 401) {
-            logout();
-        }
-        return data;
-    }).catch(err => {
-        console.log('err--->')
-    })
-
-};
 const $api = {
     get,
     post,
-    postJson,
     serverUrl
 };
 export default $api;
