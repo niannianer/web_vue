@@ -26,7 +26,7 @@ let $query = (data) => {
     return str.join('&');
 };
 let get = (path, data = {}) => {
-    data.callSystemID = '1008';
+    data.callSystemID = '1007';
     data.t = new Date().getTime();
     let url = `${serverUrl + path}`
     return axios({
@@ -49,7 +49,7 @@ let get = (path, data = {}) => {
 };
 import  {logout} from './operation';
 let post = (path, data = {}) => {
-    data.callSystemID = '1008';
+    data.callSystemID = '1007';
     let  url = `${serverUrl + path}`;
     return axios({
         url,
@@ -78,9 +78,40 @@ let post = (path, data = {}) => {
     })
 
 };
+let postJson = (path, data = {}) => {
+    data.callSystemID = '1007';
+    let  url = `${serverUrl + path}`;
+    return axios({
+        url,
+        method: 'post',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        params: {
+            t: new Date().getTime()
+        },
+        withCredentials: true,
+        data: data
+    }).then(response => {
+        if (response.status == 200) {
+            return response.data;
+        } else {
+            return {};
+        }
+    }).then(data => {
+        if (data.code == 401) {
+            logout();
+        }
+        return data;
+    }).catch(err => {
+        console.log('err--->')
+    })
+
+};
 const $api = {
     get,
     post,
+    postJson,
     serverUrl
 };
 export default $api;

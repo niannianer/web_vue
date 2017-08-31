@@ -40,7 +40,7 @@
             <div class="justify-content-center paging pages" flex-box="0" flex="main:center">
                 <div flex>
                     <div>
-                        <b-pagination prev-text="上一页" next-text="下一页" hide-goto-end-buttons size="md" :total-rows="count" :per-page='perPage' v-model="pageNo" @click.native="pageChange()"></b-pagination>
+                        <b-pagination prev-text="上一页" next-text="下一页" hide-goto-end-buttons size="md" maxlength="5" :total-rows="count" :per-page='perPage' v-model="pageNo" @click.native="pageChange()"></b-pagination>
                     </div>
                     <div class="total"><span>共{{ Math.ceil(count / perPage) }}页</span><span>共{{ count }}条</span></div>
                 </div>
@@ -58,7 +58,6 @@
             return {
                 etStatus:'',
                 pageNo:1,
-                pageSize:20,
                 count:0,
                 perPage:20,
                 experienceName:'',
@@ -102,7 +101,7 @@
                 $api.get('/market/getMarketTemplateList',{
                     etStatus:this.etStatus,
                     pageNo:this.pageNo,
-                    pageSize:this.pageSize,
+                    pageSize:this.perPage,
                     experienceName:this.experienceName
                 }).then(msg=>{
                     if(msg.code == 200){
