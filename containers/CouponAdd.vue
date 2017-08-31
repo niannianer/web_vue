@@ -41,9 +41,9 @@
                         <div v-if="addType == 2" flex>
                             <label>导入用户：</label>
                             <div flex class="upload">
-                                <div class="upload-excel">
+                                <div class="upload-excel" flex>
                                     <vue-file-upload
-                                            url='http://10.10.10.72:8888/file/fileUpload'
+                                            url='http://10.10.10.72:8891/file/fileUpload'
                                             label=""
                                             ref="vueFileUploader"
                                             v-bind:events = "cbEvents"
@@ -59,7 +59,7 @@
                 </li>
             </ul>
             <div class="submitBtn">
-                <b-button class="btns">提交审核</b-button>
+                <b-button class="btns" @click="submit">提交审核</b-button>
             </div>
         </div>
         <!--详情、审核弹框-->
@@ -159,9 +159,19 @@
         components: { datepicker, VueFileUpload },
         computed: {},
         methods: {
-            //添加类型修改
-            addTypeChange(type) {
-                this.addType = type;
+            //获取批次号
+            getBatchs() {
+                $api.get('/coupon/allCouponList',{
+
+                }).then(res=>{
+                    if(res.code == 200){
+                        let resBatchsList =  res.data;
+                        resBatchsList.forEach(item => {
+                            this.batchOptions.push({value: item.ccCode, text: item.ccCode + '-' + item.ccName});
+                        });
+                        this.batchSelected = resBatchsList[0].ccCode;
+                    }
+                });
             },
             //添加批次号
             batchAdd() {
@@ -180,6 +190,10 @@
                 }
                 this.batchArr = batchArr;
             },
+            //添加用户类型修改
+            addTypeChange(type) {
+                this.addType = type;
+            },
             //添加用户名
             usernameAdd(username) {
                 username = username.trim();
@@ -195,17 +209,14 @@
                             usernameArr.push(username);
                         } else {
                             if (res.code == 1001) {
-                                Toast('该用户非平台注册投资用户！');
+                                ConfirmOnly({
+                                    title:'提示',
+                                    content:'该用户非平台注册用户！'
+                                });
                             }
                         }
                     });
                 }
-/*
-                ConfirmOnly({
-                    title:'提示',
-                    content:'该用户非平台注册用户！'
-                });
-*/
             },
             //删除数组
             arrRemove(removeItem, originArr) {
@@ -236,6 +247,7 @@
                 }
                 this.fileName = name;
             },
+            //上传文件
             uploadExcel(){
                 if(this.fileName){
                     this.files[this.files.length-1].upload();
@@ -243,17 +255,31 @@
                 }
                 Toast('请先选择上传文件！');
             },
-            //获取批次号
-            getBatchs() {
-                $api.get('/coupon/allCouponList',{
-
+            //跳转到列表页
+            redirectTo(){
+                location.href = 'coupon-check.html';
+            },
+            //提交审核
+            submit() {
+                if (this.batchArr == '') {
+                    Toast('请添加批次号');
+                    return;
+                }
+                if(this.usernameArr == '') {
+                    Toast('请添加用户');
+                    return;
+                }
+                let batchArrStr = this.batchArr.join(',');
+                let usernameArrStr = this.usernameArr.join(',');
+                $api.post('/coupon/insertSpecifiedDistribution',{
+                    ccCodeList: batchArrStr,
+                    userPhoneList: usernameArrStr
                 }).then(res=>{
                     if(res.code == 200){
-                        let resBatchsList =  res.data;
-                        resBatchsList.forEach(item => {
-                            this.batchOptions.push({value: item.ccCode, text: item.ccCode + '-' + item.ccName});
-                        });
-                        this.batchSelected = resBatchsList[0].ccCode;
+                        Toast('批量审核成功！');
+                        setTimeout(()=> {
+                            this.redirectTo();
+                        }, 3000);
                     }
                 });
             },
