@@ -74,7 +74,7 @@
             <div class="sms-detail-wrap sms-wrap">
                 <h6 v-if="couponPop.popType == 1">指定发放用户详情</h6>
                 <h6 v-else>礼券批量发放审核</h6>
-                <div class="sms-detail-content">
+                <div class="sms-detail-content" :class="{forCheck: couponPop.popType == 2}">
                     <div v-if="couponPop.popType == 1" class="sms-detail-table" flex="dir:top">
                         <div flex-box="1">
                             <b-table :items="couponPop.items" :fields="couponPop.fields"  bordered>
@@ -157,6 +157,7 @@
                 popShow: false,
                 ingAuditId: '',
                 auditIdStr: '',
+                auditedType: 1,
                 //详情、审核
                 couponPop:{
                     popType: 1,
@@ -290,18 +291,20 @@
             //上传审核结果
             postAudits() {
                 if (this.couponPop.tab == 1) {
-                    this.couponPop.auditReason = ''
+                    this.couponPop.auditReason = '';
+                    this.auditedType = 1
                 } else {
                     if ((this.couponPop.auditReason).trim() == '') {
                         Toast('审核作废原因不能为空');
                         return;
                     }
+                    this.auditedType = 0
                 }
                 this.popShow = false;
                 this.couponPop.tab = 1;
                 $api.post('/coupon/couponAudit',{
                     auditIdList: this.auditIdStr,
-                    isAudited: this.couponPop.tab,
+                    isAudited: this.auditedType,
                     auditOpinion: this.couponPop.auditReason
                 }).then(res=>{
                     if(res.code == 200){
