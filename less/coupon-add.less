@@ -23,7 +23,14 @@
 					margin-bottom: 20px;
 				}
 				.list-handle {
-					width: 400px;
+					width: 500px;
+					> div {
+						height: 38px;
+						line-height: 38px;
+						button {
+							height: 100%;
+						}
+					}
 				}
 				.view-list {
 					margin-top: 20px;
@@ -34,6 +41,13 @@
 						width: 50%;
 						float: left;
 						margin-bottom: 10px;
+						div {
+							max-width: 75%;
+							text-overflow: ellipsis;
+							overflow: hidden;
+							white-space: nowrap;
+							margin-right: 5px;
+						}
 						a {
 							color: @color-primary;
 							&:hover {
@@ -52,43 +66,36 @@
 						line-height: 38px;
 					}
 					.upload-excel {
+						position: relative;
 						min-width: 96px;
-						.fileupload-button{
-							margin-top: 5px;
-							padding: 0 10px;
-							line-height: 30px;
-							height:30px;
-							border-radius: .25rem;
-							width:52px;
-							input{
-								width:100%;
-								height:100%;
-							}
-							&:after,&:before{
-								content: "";
-								display: block;
-								position: absolute;
-								background-color: #fff;
-								border-radius: 2px;
-								left:50%;
-								top:50%;
-							}
-							&:after{
-								width:16px;
-								height:2px;
-								margin:-1px 0 0 -8px;
-							}
-							&:before{
-								width:2px;
-								height:16px;
-								margin:-8px 0 0 -1px;
-							}
+						.file {
+							position: absolute;
+							left: 0;
+							top: 0;
+							width: 80px;
+							height: 38px;
+							opacity: 0;
+							z-index: 999;
 						}
-						.excel-name {
-							max-width: 180px;
-							white-space: nowrap;
-							overflow: hidden;
-							text-overflow: ellipsis;
+						div {
+							position: absolute;
+							left: 0;
+							top: 0;
+							height: 38px;
+							background: #fff;
+							min-width: 120px;
+							.btns {
+								margin-left: 0;
+								margin-right: 5px;
+							}
+							span {
+								height: 38px;
+								line-height: 38px;
+								max-width: 180px;
+								white-space: nowrap;
+								overflow: hidden;
+								text-overflow: ellipsis;
+							}
 						}
 					}
 				}

@@ -11,8 +11,8 @@
                             <b-button class="btns" @click="batchAdd">添加</b-button>
                         </div>
                         <ul class="view-list">
-                            <li v-for="batch in batchArr">
-                                {{ batch }}
+                            <li v-for="batch in batchArr" flex>
+                                <div>{{ batch }}</div>
                                 <a @click="arrRemove(batch,batchArr)">删除</a>
                             </li>
                         </ul>
@@ -28,8 +28,9 @@
                         <div v-if="addType == 1">
                             <div flex class="list-handle">
                                 <label>输入用户名：</label>
-                                <b-form-input v-model="username" maxlength="11"></b-form-input>
-                                <b-button class="btns" @click="usernameAdd(username)">添加</b-button>
+                                <div><b-form-input v-model="username" maxlength="11"></b-form-input></div>
+                                <div><b-button class="btns" @click="usernameAdd(username)">添加</b-button></div>
+                                <!--<div>已添加<b>{{usernameArr.length}}</b>条</div>-->
                             </div>
                             <ul class="view-list username-list">
                                 <li v-for="username in usernameArr">
@@ -37,22 +38,18 @@
                                     <a @click="arrRemove(username, usernameArr)">删除</a>
                                 </li>
                             </ul>
+                            <!--<div>已添加<b>{{usernameArr.length}}</b>条</div>-->
                         </div>
                         <div v-if="addType == 2" flex>
                             <label>导入用户：</label>
                             <div flex class="upload">
                                 <div class="upload-excel" flex>
-                                    <vue-file-upload
-                                            url='http://10.10.10.72:8891/file/fileUpload'
-                                            label=""
-                                            ref="vueFileUploader"
-                                            v-bind:events = "cbEvents"
-                                            v-bind:request-options = "reqopts"
-                                            v-on:onAdd = "onAddItem">
-                                    </vue-file-upload>
-                                    <span class="excel-name">{{fileName}}</span>
+                                    <input type="file" ref="fileInput" class="file" @change="fileChange"/>
+                                    <div flex>
+                                        <b-button class="btn btns">选择文件</b-button>
+                                        <span class="excel-name">{{fileName}}</span>
+                                    </div>
                                 </div>
-                                <div><b-btn class="btns" @click="uploadExcel">确定</b-btn></div>
                             </div>
                         </div>
                     </div>
@@ -110,6 +107,7 @@
     import datepicker from 'vue-date';
     import VueFileUpload  from 'vue-file-upload';
     import {checkPhone} from '../tools/operation';
+    let file= null;
     export default {
         name: 'coupon-user',
         data(){
@@ -121,35 +119,11 @@
                 batchArr: [],
                 username: '',
                 usernameArr: [],
+                usernameNo: 0,
 
                 //文件上传
                 maxSize:2097152,
                 files:[],
-                //文件过滤器，只能上传excel
-                filters:[
-                    {
-                        name:"filter",
-                        fn(file){
-                            var type = '|' + file.type.slice(file.type.lastIndexOf('/') + 1) + '|';
-                            return '|xlsx|xls|'.indexOf(type) !== -1;
-                        }
-                    }
-                ],
-                //回调函数绑定
-                cbEvents:{
-                    onCompleteUpload:(file,response,status,header)=>{
-                        console.log(file);
-                        console.log("finish upload;")
-                    }
-                },
-                //xhr请求附带参数
-                reqopts:{
-                    formData:{
-                        tokens:'tttttttttttttt'
-                    },
-                    responseType:'json',
-                    withCredentials:false
-                },
                 fileName:''
             }
         },
@@ -179,6 +153,10 @@
                 let batchOptions = this.batchOptions;
                 let batchOptions_len = batchOptions.length;
                 let batchArr = this.batchArr;
+                if (batchArr.length >= 4) {
+                    Toast('批次号最多添加20条');
+                    return;
+                }
                 for (let i = 0; i < batchOptions_len; i++) {
                     if (batchSelected == batchOptions[i].value) {
                         if (batchArr.indexOf((batchOptions[i].text)) >= 0) {
@@ -235,7 +213,6 @@
             //添加上传文件
             onAddItem(files){
                 this.files = files;
-                console.log(files);
                 let name = files[files.length-1].name;
                 if(!(/\.xl(s[xmb]|t[xm]|am)$/.test(name))){
                     Toast('请选择excel文件上传！');
@@ -245,36 +222,49 @@
                     Toast('上传文件不要大于2M！');
                     return false;
                 }
-                this.fileName = name;
-            },
-            //上传文件
-            uploadExcel(){
-                if(this.fileName){
-                    this.files[this.files.length-1].upload();
-                    return true;
-                }
-                Toast('请先选择上传文件！');
             },
             //跳转到列表页
             redirectTo(){
                 location.href = 'coupon-check.html';
             },
+            //文件修改
+            fileChange(event){
+                file = event.target.files[0];
+                this.fileName = file.name;
+                if (file.type != 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' && file.name.substring(file.name.length-4, file.name.length) != '.xls') {
+                    this.fileName = '';
+                    Toast('请选择excel文件上传！');
+                    return false;
+                }
+                if (Math.round(file.size / 1024 / 1024) > 2) {
+                    this.fileName = '';
+                    Toast('文件大小不得超过2M');
+                    return false;
+                }
+            },
             //提交审核
             submit() {
+                let batchArrStr = this.batchArr.join(',');
+                let usernameArrStr = this.usernameArr.join(',');
                 if (this.batchArr == '') {
                     Toast('请添加批次号');
                     return;
                 }
-                if(this.usernameArr == '') {
+                if(this.addType == 1 && this.usernameArr == '' || this.addType == 2 && this.fileName == '') {
                     Toast('请添加用户');
                     return;
                 }
-                let batchArrStr = this.batchArr.join(',');
-                let usernameArrStr = this.usernameArr.join(',');
-                $api.post('/coupon/insertSpecifiedDistribution',{
-                    ccCodeList: batchArrStr,
-                    userPhoneList: usernameArrStr
+                let form =new FormData();
+                if(this.addType == 2) {
+                    form.append('file', file, file.name);
+                }
+                form.append('ccCodeList',batchArrStr);
+                form.append('userPhoneList',usernameArrStr);
+                fetch($api.serverUrl+'/coupon/insertSpecifiedDistribution', {
+                    method: 'POST',
+                    body: form
                 }).then(res=>{
+                    alert(1);
                     if(res.code == 200){
                         Toast('提交成功！');
                         setTimeout(()=> {
