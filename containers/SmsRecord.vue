@@ -235,10 +235,10 @@
                 ConfirmOnly({
                     title:'短信批量发送',
                     content:`请求发送条数：${66}条`,
-                    callBack:(res)=>{
-                        if(res){
-                            console.log(1)
-                        }
+                    callback:()=>{
+                        this.items.forEach(({mobile,requestNo},index)=>{
+                            
+                        });
                     }
                 });
                 if(this.checkedAll){

@@ -79,7 +79,7 @@
                         Toast('短信备注不能为空');
                         return;
                     }
-                    $api.postJson('/smsTemplate',{
+                    $api.post('/smsTemplate',{
                         "smsType":this.smsType,
                         "templateContent":this.templateContent,
                         "templateDescription":this.templateDescription
