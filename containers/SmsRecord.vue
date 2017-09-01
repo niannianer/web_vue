@@ -55,7 +55,7 @@
                     </thead>
                     <tbody>
                         <tr v-for="(item,index) in items" :key="index">
-                            <td><div><input type="checkBox" :checked="item.checked " @click="erverChecked(index)"></div></td>
+                            <td><div><input type="checkBox" :checked="item.checked " @click="everChecked(index)"></div></td>
                             <td>{{item.mobile}}</td>
                             <td>{{item.userName}}</td>
                             <td>{{item.requestNo}}</td>
@@ -106,7 +106,6 @@
                     </template>
                 </b-table> -->
             </div>
-            <input type="checkBox">
             <div class="justify-content-center paging pages" flex-box="0" flex="main:center">
                 <div flex>
                     <div>
@@ -186,8 +185,8 @@
                     sendStatusMess: { label: '备注' },
                 },
                 items:[],
-                pageSize:10,
-                count:30,
+                pageSize:20,
+                count:0,
                 pageNo:1,
                 checkedAll:false
 
@@ -235,7 +234,12 @@
             someSend(){
                 ConfirmOnly({
                     title:'短信批量发送',
-                    content:'请求发送条数：89条'
+                    content:`请求发送条数：${66}条`,
+                    callback:()=>{
+                        this.items.forEach(({mobile,requestNo},index)=>{
+                            
+                        });
+                    }
                 });
                 if(this.checkedAll){
                     console.log('all');
@@ -247,7 +251,7 @@
                     }
                 })
             },
-            erverChecked(index){
+            everChecked(index){
                 this.items[index].checked = !this.items[index].checked;
                 for (let value of this.items) {
                     if(!value.checked){
@@ -258,6 +262,7 @@
                 this.checkedAll = true;
             },
             getList(){
+                this.checkedAll = false;
                 let {requestBy,phoneNumber,smsTemplateNo,smsStatus,smsType,requestNo,beginDate,endDate,pageSize,pageNo} = this;
                 $api.get('/message/lstSmsSendLog',{requestBy,phoneNumber,smsTemplateNo,smsStatus,smsType,requestNo,beginDate,endDate,pageSize,pageNo})
                     .then(res=>{

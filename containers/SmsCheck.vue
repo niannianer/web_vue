@@ -143,9 +143,8 @@
                                     <div><b-form-select v-model="sendObj.smsTemplateNo" :options="sendObj.smsTemplateNoOptions" size="sm"></b-form-select></div>
                                 </div>
                                 <div class="sms-inner-contents" v-else>
-                                    <div><textarea class="form-control" v-model="sendObj.smsContent" maxlength="300"></textarea></div>
-                                    <div class="sms-text-size">{{sendObj.smsContent.length}}/300</div>
-                                    <p><i>注：建议输入不多于65个字，超过将拆分多条短信发送！</i></p>
+                                    <div><textarea class="form-control" v-model="sendObj.smsContent" maxlength="300" rows="2"></textarea></div>
+                                    <div class="sms-text-size" flex="main:justify"><i>注：建议输入不多于65个字，超过将拆分多条短信发送！</i><span>{{sendObj.smsContent.length}}/300</span></div>
                                     <div flex class="sms-comment">
                                         <span>短信备注：</span>
                                         <b-form-input size="sm" maxlength="50" placeholder="备注" v-model="sendObj.smsDescription"></b-form-input>
@@ -159,7 +158,7 @@
                 <div class="sms-send-btn" flex="main:center">
                     <b-btn class="btns" @click.stop="smsSubmit">提交请求</b-btn>
                 </div>
-                <div class="sms-close" @click.stop="smsSendShow = false"></div>
+                <div class="sms-close" @click.stop="smsSendClose"></div>
             </div>
         </div>
         <div class="sms-box shadow-box" flex="main:center cross:center" v-if="smsDetailShow">
@@ -236,10 +235,10 @@
                     </ul>
                 </div>
                 <div class="sms-detail-btn" flex="main:center">
-                    <b-btn v-if="!smsDetail.operate" class="btns" @click.stop="smsDetailShow = false">关闭</b-btn>
+                    <b-btn v-if="!smsDetail.operate" class="btns" @click.stop="smsDetailClose">关闭</b-btn>
                     <b-btn  v-else class="btns" @click.native="audit">确定</b-btn>
                 </div>
-                <div class="sms-close" @click.stop="smsDetailShow = false"></div>
+                <div class="sms-close" @click.stop="smsDetailClose"></div>
             </div>
         </div>
     </div>
@@ -252,7 +251,6 @@
     import Toast from '../components/Toast';
     import datepicker from 'vue-date';
     import VueFileUpload  from 'vue-file-upload';
-    //console.log('66',FileUpload);
     export default {
         name: 'sms-check',
         data(){
@@ -353,13 +351,15 @@
                             text:'DX20170830112-生日短信',
                         }
                     ],
-                    smsTemplateNo:'DX20170830112'
+                    smsTemplateNo:'DX20170830112',
+                    smsTemplateContent:{},
+                    smstemplateDescription:{}
                 },
                 smsDetail:{
                     operate:true,
                     title:'短信发送详情',
                     fields: {
-                        mobile: { label: '用户名' },
+                        mobile: { label: '手机号' },
                         userName:{label:'姓名'},
                     },
                     items:[],
@@ -428,13 +428,30 @@
                 this.smsType = 0;
                 this.beginDate = '';
                 this.endDate = '';
-                console.log(this.smsType);
             },
             addSms(){
+                this.sendObj.smsTemplateNoOptions = [];
                 this.smsSendShow = true;
+                $api.get('/smsTemplate/listAll').then(res=>{
+                    if(res.code == 200){
+                        res.data.forEach(({templateNo,templateContent,templateDescription},index)=>{
+                            let ouputs = String(templateDescription);
+                            if(ouputs.length>8){
+                                ouputs = ouputs.substring(0,8)+"...";
+                            }
+                            this.sendObj.smsTemplateNoOptions.push({
+                                value:templateNo,
+                                text:templateNo+'-'+ouputs
+                            });
+                            this.sendObj.smsTemplateContent[templateNo] = templateContent;
+                            this.sendObj.smstemplateDescription[templateNo] = templateDescription;
+                        });
+                        this.sendObj.smsTemplateNo = this.sendObj.smsTemplateNoOptions[0].value;
+                    }
+                });
             },
             pageChange(){
-                console.log(this.pageNo);
+                this.getList();
             },
             detail(item,type){
                 this.smsDetailItems = item;
@@ -468,7 +485,7 @@
                 });
             },
             getDetailList(){
-                let auditId = this.smsDetailItems.id;
+                let auditId = this.smsDetailItems.requestNo;
                 let {pageSize,pageNo} = this.smsDetail;
                 $api.get('/message/lstSmsSendRequestDetail',{
                     auditId,
@@ -508,20 +525,24 @@
                     Toast('请先添加手机号！');
                     return false;
                 }
-                if(this.sendObj.innerTab){
+                let {userPhoneList,smsType,smsTemplateNo,smsContent,smsDescription} = this.sendObj;
+                if(this.sendObj.innerTab == 1){
                     //自定义
-                    if(this.sendObj.smsContent.trim().length<1){
+                    if(smsContent.trim().length<1){
                         Toast('短信内容不能为空！');
                         return false;
                     }
-                    if(this.sendObj.smsDescription.trim().length<1){
+                    if(smsDescription.trim().length<1){
                         Toast('短信备注不能为空！');
                         return false;
                     }
+                    smsTemplateNo = '';
+                }else{
+                    //模板提交
+                    smsContent = this.sendObj.smsTemplateContent[this.sendObj.smsTemplateNo];
+                    smsDescription = this.sendObj.smstemplateDescription[this.sendObj.smsTemplateNo];
                 }
                 this.submitClick = false;
-                console.log(this.sendObj);
-                let {userPhoneList,smsType,smsTemplateNo,smsContent,smsDescription} = this.sendObj;
                 let userPhoneStr = userPhoneList.join(",");
                 $api.post('/message/insertSmsSendRequestByList',{
                     userPhoneList:userPhoneStr,
@@ -532,14 +553,7 @@
                 }).then((res)=>{
                     this.submitClick = true;
                     if(res.code == 200){
-                        this.smsSendShow = false;
-                        this.sendObj.tab = 0;
-                        this.sendObj.cellNumber = '';
-                        this.sendObj.userPhoneList = [];
-                        this.sendObj.innerTab = 0;
-                        this.sendObj.smsContent = '';
-                        this.sendObj.smsDescription = '';
-                        this.sendObj.smsType = 1;
+                        this.smsSendClose();
                         this.empty();
                         this.pageNo = 1;
                         this.getList();
@@ -547,6 +561,18 @@
                         Toast(res.message || '服务器错误！');
                     }
                 });
+            },
+            //关闭添加请求
+            smsSendClose(){
+                this.smsSendShow = false
+                this.sendObj.tab = 0;
+                this.sendObj.cellNumber = '';
+                this.sendObj.userPhoneList = [];
+                this.sendObj.innerTab = 0;
+                this.sendObj.smsContent = '';
+                this.sendObj.smsDescription = '';
+                this.sendObj.smsType = 1;
+                this.sendObj.smsTemplateNo = 'DX20170830112';
             },
             //详情分页
             smsDetailChange(){
@@ -559,13 +585,10 @@
                     return false;
                 }
                 let {smsDetail,smsDetailItems} = this;
-                console.log(smsDetail);
                 let auditOpinion = smsDetail.auditReason;
-                console.log(auditOpinion,smsDetail.tab);
                 if(smsDetail.tab == 1){
                     auditOpinion = null;
                 }else{
-                    console.log(auditOpinion.trim().length)
                     if(auditOpinion.trim().length<1){
                         Toast('请输入审核作废原因！');
                         return false;
@@ -579,17 +602,25 @@
                 }).then((res)=>{
                     this.submitClick = true;
                     if(res.code == 200){
-                        this.smsDetailShow = false;
+                        this.smsDetailClose();
                         this.getList();
                     }else{
                         Toast(res.message || '服务器错误！');
                     }
                 });
             },
+            //关闭detail
+            smsDetailClose(){
+                this.smsDetailShow = false;
+                this.smsDetail.pageNo = 1;
+                this.smsDetail.tab = 1;
+                this.smsDetail.items = [];
+                this.smsDetail.auditReason = '';
+                this.smsDetail.count = 0;
+            },
             //添加上传文件
             onAddItem(files){
                 this.files = files;
-                console.log(files);
                 let name = files[files.length-1].name;
                 let type = files[files.length-1].type;
                 if(!(/\.xl(s[xmb]|t[xm]|am)$/.test(name)) || (/\.xl(s[xmb]|t[xm]|am)$/.test(type))){
