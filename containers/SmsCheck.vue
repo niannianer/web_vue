@@ -521,25 +521,16 @@
 
                 let {userPhoneList,smsType,smsTemplateNo,smsContent,smsDescription} = this.sendObj;
                 let userPhoneStr = '';
+                let form = new FormData();
                 if(this.sendObj.tab == 1){
                     //导入excel
-                    let form =new FormData();
-                    //form.append('file', file, file.name);
+                    console.log(this.fileName);
+                    if(!this.fileName){
+                        Toast('请先上传文件！');
+                        return false;
+                    }
+                    form.append('file', file, file.name);
                     console.log('0.0',file);
-                    /*form.append('ccCodeList',batchArrStr);
-                    form.append('userPhoneList',usernameArrStr);
-                    fetch($api.serverUrl+'/coupon/insertSpecifiedDistribution', {
-                        method: 'POST',
-                        body: form
-                    }).then(res=>{
-                        alert(1);
-                        if(res.code == 200){
-                            Toast('提交成功！');
-                            setTimeout(()=> {
-                                this.redirectTo();
-                            }, 3000);
-                        }
-                    });*/
                 }else{
                     //逐个导入
                     if(this.messCount < 1){
@@ -547,6 +538,7 @@
                         return false;
                     }
                     userPhoneStr = userPhoneList.join(",");
+                    form.append('userPhoneList',userPhoneStr);
                 }
                 if(this.sendObj.innerTab == 1){
                     //自定义
@@ -564,8 +556,31 @@
                     smsContent = this.sendObj.smsTemplateContent[this.sendObj.smsTemplateNo];
                     smsDescription = this.sendObj.smstemplateDescription[this.sendObj.smsTemplateNo];
                 }
+                form.append('smsType',smsType);
+                form.append('smsTemplateNo',smsTemplateNo);
+                form.append('smsContent',smsContent);
+                form.append('smsDescription',smsDescription);
                 this.submitClick = false;
-                $api.post('/message/insertSmsSendRequestByList',{
+                fetch($api.serverUrl+'/message/insertSmsSendRequestByList', {
+                    method: 'POST',
+                    body: form
+                }).then(res=>{
+                    this.submitClick = false;
+                    if (res.status == 200){
+                        return res.json();
+                    }
+                }).then(res=>{
+                    if (res.code == 200){
+                        this.smsSendClose();
+                        this.empty();
+                        this.pageNo = 1;
+                        this.getList();
+                    } else {
+                        Toast(res.message || '服务器错误！');
+                        return;
+                    }
+                });
+                /*$api.post('/message/insertSmsSendRequestByList',{
                     userPhoneList:userPhoneStr,
                     smsType,
                     smsTemplateNo,
@@ -581,7 +596,7 @@
                     }else{
                         Toast(res.message || '服务器错误！');
                     }
-                });
+                });*/
             },
             //关闭添加请求
             smsSendClose(){
@@ -640,16 +655,17 @@
                 this.smsDetail.count = 0;
             },
             fileChange(event){
-                let file = event.target.files[0];
+                file = event.target.files[0];
                 let name = file.name;
                 let type = file.type;
+                console.log(type);
                 let checkType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
-                if(file.type == ''){
+                if(type == ''){
                     if(!/\.xl(s[xmb]|t[xm]|am)$/.test(name)){
                         Toast('请选择excel文件上传！');
                         return false;
                     }
-                }else if((type != checkType) && (/\.xl(s[xmb]|t[xm]|am)$/.test(type))){
+                }else if((type != checkType) && (!/\.xl(s[xmb]|t[xm]|am)$/.test(type))){
                     Toast('请选择excel文件上传！');
                     return false;
                 }

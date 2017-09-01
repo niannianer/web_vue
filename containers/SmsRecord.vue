@@ -250,9 +250,12 @@
                     callback:()=>{
                         for(let index in this.submitItem){
                             this.submitItem[index] = this.submitItem[index].join(',');
-                            console.log(this.submitItem[index].join(','));
                         }
-                        console.log(this.submitItem);
+                        $api.post('/message/repeatSendSms',{
+                            sendInfo:this.submitItem
+                        }).then(res=>{
+                            console.log(res);
+                        });
                     }
                 });
                 if(this.checkedAll){
