@@ -59,7 +59,7 @@
                     <template slot="auditTime" scope="item">{{item.value | timeFormat}}</template>
                     <template slot="requestStatus" scope="item">
                         <template v-if="item.value == 1">待审核</template>
-                        <template v-if="item.value == -1">审核失败</template>
+                        <template v-if="item.value == -1">审核作废</template>
                         <template v-if="item.value == 2">已审核</template>
                     </template>
                     <template slot="operation" scope="item">
@@ -204,7 +204,7 @@
                             <div>状态：</div>
                             <div>
                                 <template v-if="smsDetailItems.requestStatus == 1">待审核</template>
-                                <template v-if="smsDetailItems.requestStatus == -1">审核失败</template>
+                                <template v-if="smsDetailItems.requestStatus == -1">审核作废</template>
                                 <template v-if="smsDetailItems.requestStatus == 2">已审核</template>
                             </div>
                         </li>

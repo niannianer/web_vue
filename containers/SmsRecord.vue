@@ -185,6 +185,7 @@
                     sendStatusMess: { label: '备注' },
                 },
                 items:[],
+                submitItem:{},
                 pageSize:20,
                 count:0,
                 pageNo:1,
@@ -232,13 +233,26 @@
                 })
             },
             someSend(){
+                let messageCount = 0;
+                this.submitItem = {};
+                this.items.forEach(({mobile,requestNo,checked},index)=>{
+                    if(checked){
+                        if(!this.submitItem[requestNo]){
+                            this.submitItem[requestNo] = [];
+                        }
+                        this.submitItem[requestNo].push(mobile);
+                        messageCount++;
+                    }
+                });
                 ConfirmOnly({
                     title:'短信批量发送',
-                    content:`请求发送条数：${66}条`,
+                    content:`请求发送条数：${messageCount}条`,
                     callback:()=>{
-                        this.items.forEach(({mobile,requestNo},index)=>{
-                            
-                        });
+                        for(let index in this.submitItem){
+                            this.submitItem[index] = this.submitItem[index].join(',');
+                            console.log(this.submitItem[index].join(','));
+                        }
+                        console.log(this.submitItem);
                     }
                 });
                 if(this.checkedAll){
@@ -262,7 +276,6 @@
                 this.checkedAll = true;
             },
             getList(){
-                this.checkedAll = false;
                 let {requestBy,phoneNumber,smsTemplateNo,smsStatus,smsType,requestNo,beginDate,endDate,pageSize,pageNo} = this;
                 $api.get('/message/lstSmsSendLog',{requestBy,phoneNumber,smsTemplateNo,smsStatus,smsType,requestNo,beginDate,endDate,pageSize,pageNo})
                     .then(res=>{
@@ -270,7 +283,8 @@
                         this.items = res.data.items;
                         this.count = res.data.totalCount;
                     }
-                })
+                });
+                this.checkedAll = false;
             }
         },
         mounted(){},
