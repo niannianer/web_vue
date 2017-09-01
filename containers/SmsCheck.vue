@@ -659,14 +659,17 @@
                 let name = file.name;
                 let type = file.type;
                 console.log(type);
-                let checkType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+                let checkType1 = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+                let checkType2 = 'application/vnd.openxmlformats-officedocument.spreadsheetml.template';
+                let checkType3 = 'application/vnd.ms-excel';
                 if(type == ''){
+                    alert(name);
                     if(!/\.xl(s[xmb]|t[xm]|am)$/.test(name)){
-                        Toast('请选择excel文件上传！');
+                        Toast('请选择excel文件上传1！');
                         return false;
                     }
-                }else if((type != checkType) && (!/\.xl(s[xmb]|t[xm]|am)$/.test(type))){
-                    Toast('请选择excel文件上传！');
+                }else if((type != checkType1) && (type != checkType2) && (type != checkType3) && (!/\.xl(s[xmb]|t[xm]|am)$/.test(type))){
+                    Toast('请选择excel文件上传2！');
                     return false;
                 }
                 if (file.size>this.maxSize) {
