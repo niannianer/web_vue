@@ -186,8 +186,8 @@
                     sendStatusMess: { label: '备注' },
                 },
                 items:[],
-                pageSize:10,
-                count:30,
+                pageSize:20,
+                count:0,
                 pageNo:1,
                 checkedAll:false
 
