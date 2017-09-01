@@ -140,7 +140,7 @@
                             <div class="sms-inner-s" flex="cross:center">
                                 <div class="sms-inner-tabs" flex v-if="sendObj.innerTab == 0">
                                     <div>短信模板编号：</div>
-                                    <div><b-form-select v-model="sendObj.smsTemplate" :options="sendObj.smsTemplateOptions" size="sm"></b-form-select></div>
+                                    <div><b-form-select v-model="sendObj.smsTemplateNo" :options="sendObj.smsTemplateNoOptions" size="sm"></b-form-select></div>
                                 </div>
                                 <div class="sms-inner-contents" v-else>
                                     <div><textarea class="form-control" v-model="sendObj.smsContent" maxlength="300"></textarea></div>
@@ -219,9 +219,9 @@
                         <div class="justify-content-center paging pages" flex-box="0" flex="main:center">
                             <div flex>
                                 <div>
-                                    <b-pagination prev-text="上一页" next-text="下一页" hide-goto-end-buttons size="md" :total-rows="smsDetail.count" :per-page='smsDetail.perPage' v-model="smsDetail.pageNo" @click.native="smsDetailChange()"></b-pagination>
+                                    <b-pagination prev-text="上一页" next-text="下一页" hide-goto-end-buttons size="md" :total-rows="smsDetail.count" :per-page='smsDetail.pageSize' v-model="smsDetail.pageNo" @click.native="smsDetailChange()"></b-pagination>
                                 </div>
-                                <div class="total"><span>共{{ Math.ceil(smsDetail.count / smsDetail.perPage) }}页</span><span>共{{ smsDetail.count }}条</span></div>
+                                <div class="total"><span>共{{ Math.ceil(smsDetail.count / smsDetail.pageSize) }}页</span><span>共{{ smsDetail.count }}条</span></div>
                             </div>
                         </div>
                     </div>
@@ -347,24 +347,24 @@
                         }
                     ],
                     smsType:1,
-                    smsTemplateOptions:[
+                    smsTemplateNoOptions:[
                         {
                             value:'DX20170830112',
                             text:'DX20170830112-生日短信',
                         }
                     ],
-                    smsTemplate:'DX20170830112'
+                    smsTemplateNo:'DX20170830112'
                 },
                 smsDetail:{
                     operate:true,
                     title:'短信发送详情',
                     fields: {
-                        userName: { label: '用户名' },
-                        realName:{label:'姓名'},
+                        mobile: { label: '用户名' },
+                        userName:{label:'姓名'},
                     },
                     items:[],
                     auditReason:'',
-                    perPage:5,
+                    pageSize:5,
                     count:0,
                     pageNo:1,
                     tab:1
@@ -438,17 +438,7 @@
             },
             detail(item,type){
                 this.smsDetailItems = item;
-                console.log(item)
-                $api.get('/message/lstSmsSendRequestDetail',{
-                    auditId:item.id,
-                    pageSize:this.smsDetail.perPage,
-                    pageNo:this.smsDetail.pageNo
-                }).then((res)=>{
-                    if(res.code == 200){
-                        this.smsDetail.count = res.data.totalCount;
-                        this.smsDetail.items = res.data.items;
-                    }
-                });
+                this.getDetailList();
                 this.smsDetailShow = true;
                 if(type){
                     //审核
@@ -460,19 +450,34 @@
                 this.smsDetail.operate = false;
             },
             getList(){
+                let {requestBy,smsTemplateNo,auditStatus,smsType,beginDate,endDate,pageSize,pageNo} = this;
                 $api.get('/message/lstSmsSendRequest',{
-                    requestBy:this.requestBy,//请求人
-                    smsTemplateNo:this.smsTemplateNo,//模板编号
-                    auditStatus:this.auditStatus,//0全部，-1审核作废, 1待审核, 2审核通过
-                    smsType:this.smsType,//短信类别, 1产品上线通知， 2优惠提醒， 3客户激活， 4邀请回归， 5回访通知
-                    /*beginDate:this.beginDate,//请求时间_起始
-                    endDate:this.endDate,//请求时间_结束*/
-                    pageSize:this.perPage,//数据条数
-                    pageNo:this.pageNo//页码
+                    requestBy,
+                    smsTemplateNo,
+                    auditStatus,
+                    smsType,
+                    beginDate,
+                    endDate,
+                    pageSize,
+                    pageNo
                 }).then((res)=>{
                     if(res.code == 200){
                         this.count = res.data.totalCount;
                         this.items = res.data.items;
+                    }
+                });
+            },
+            getDetailList(){
+                let auditId = this.smsDetailItems.id;
+                let {pageSize,pageNo} = this.smsDetail;
+                $api.get('/message/lstSmsSendRequestDetail',{
+                    auditId,
+                    pageSize,
+                    pageNo
+                }).then((res)=>{
+                    if(res.code == 200){
+                        this.smsDetail.count = res.data.totalCount;
+                        this.smsDetail.items = res.data.items;
                     }
                 });
             },
@@ -515,12 +520,15 @@
                     }
                 }
                 this.submitClick = false;
+                console.log(this.sendObj);
+                let {userPhoneList,smsType,smsTemplateNo,smsContent,smsDescription} = this.sendObj;
+                let userPhoneStr = userPhoneList.join(",");
                 $api.post('/message/insertSmsSendRequestByList',{
-                    userPhoneList:this.sendObj.userPhoneList,
-                    smsType:this.sendObj.smsType,
-                    smsTemplateNo:this.sendObj.smsTemplateNo,
-                    smsContent:this.sendObj.smsContent,
-                    smsDescription:this.sendObj.smsDescription,
+                    userPhoneList:userPhoneStr,
+                    smsType,
+                    smsTemplateNo,
+                    smsContent,
+                    smsDescription
                 }).then((res)=>{
                     this.submitClick = true;
                     if(res.code == 200){
@@ -542,7 +550,7 @@
             },
             //详情分页
             smsDetailChange(){
-
+                this.getDetailList()
             },
             //确定审核
             audit(){
@@ -550,8 +558,25 @@
                     //避免重复提交
                     return false;
                 }
+                let {smsDetail,smsDetailItems} = this;
+                console.log(smsDetail);
+                let auditOpinion = smsDetail.auditReason;
+                console.log(auditOpinion,smsDetail.tab);
+                if(smsDetail.tab == 1){
+                    auditOpinion = null;
+                }else{
+                    console.log(auditOpinion.trim().length)
+                    if(auditOpinion.trim().length<1){
+                        Toast('请输入审核作废原因！');
+                        return false;
+                    }
+                }
                 this.submitClick = false;
-                $api.post('/check',{}).then((res)=>{
+                $api.post('/message/smsSendRequestAudit',{
+                    requestNo:smsDetailItems.requestNo,
+                    isAudited:smsDetail.tab,
+                    auditOpinion:auditOpinion
+                }).then((res)=>{
                     this.submitClick = true;
                     if(res.code == 200){
                         this.smsDetailShow = false;
