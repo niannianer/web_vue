@@ -227,13 +227,24 @@
             redirectTo(){
                 location.href = 'coupon-check.html';
             },
-            //文件修改
+            //文件更改
             fileChange(event){
                 file = event.target.files[0];
+                let name = file.name;
+                let type = file.type;
+                let checkType1 = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+                let checkType2 = 'application/vnd.openxmlformats-officedocument.spreadsheetml.template';
+                let checkType3 = 'application/vnd.ms-excel';
                 this.fileName = file.name;
-                if (file.type != 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' && file.name.substring(file.name.length-4, file.name.length) != '.xls') {
-                    this.fileName = '';
+                if(type == ''){
+                    if(!/\.xl(s[xmb]|t[xm]|am)$/.test(name)){
+                        Toast('请选择excel文件上传！');
+                        this.fileName = '';
+                        return false;
+                    }
+                }else if((type != checkType1) && (type != checkType2) && (type != checkType3) && !(/\.xl(s[xmb]|t[xm]|am)$/.test(type))){
                     Toast('请选择excel文件上传！');
+                    this.fileName = '';
                     return false;
                 }
                 if (Math.round(file.size / 1024 / 1024) > 2) {
@@ -257,6 +268,7 @@
                 let form =new FormData();
                 if(this.addType == 2) {
                     form.append('file', file, file.name);
+                    usernameArrStr = '';
                 }
                 form.append('ccCodeList',batchArrStr);
                 form.append('userPhoneList',usernameArrStr);
