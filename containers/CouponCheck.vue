@@ -100,10 +100,10 @@
                     </ul>
                 </div>
                 <div class="sms-detail-btn" flex="main:center">
-                    <b-btn v-if="couponPop.popType == 1" class="btns" @click.stop="popShow = false">关闭</b-btn>
+                    <b-btn v-if="couponPop.popType == 1" class="btns" @click.stop="popShow = false;couponPop.tab = 1">关闭</b-btn>
                     <b-btn v-else class="btns" @click.stop="postAudits">确定</b-btn>
                 </div>
-                <div class="sms-close" @click.stop="popShow = false"></div>
+                <div class="sms-close" @click.stop="popShow = false;couponPop.tab = 1"></div>
             </div>
         </div>
     </div>
@@ -214,6 +214,7 @@
             //分页
             pageChange(){
                 this.getTable();
+                this.isCheckedAll = false;
             },
             //详情分页
             couponDetailChange(){
@@ -281,7 +282,7 @@
             getAuditIds() {
                 for(let item of this.items) {
                     if (item.isChecked) {
-                        this.auditIdStr += item.auditId + ',';
+                        this.auditIdStr += item.auditId + '|';
                     }
                 }
             },
@@ -296,16 +297,17 @@
                     }
                 }
                 this.popShow = false;
-                this.isCheckedAll = false;
+                this.couponPop.tab = 1;
                 $api.post('/coupon/couponAudit',{
-                    auditId: this.auditIdStr,
+                    auditIdList: this.auditIdStr,
                     isAudited: this.couponPop.tab,
                     auditOpinion: this.couponPop.auditReason
                 }).then(res=>{
                     if(res.code == 200){
                         Toast('批量审核成功！');
-                        setTimeout(function() {
+                        setTimeout(() => {
                             this.getTable();
+                            this.isCheckedAll = false;
                         }, 3000);
                     }
                 });

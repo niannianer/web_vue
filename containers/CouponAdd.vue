@@ -276,7 +276,7 @@
                     userPhoneList: usernameArrStr
                 }).then(res=>{
                     if(res.code == 200){
-                        Toast('批量审核成功！');
+                        Toast('提交成功！');
                         setTimeout(()=> {
                             this.redirectTo();
                         }, 3000);
