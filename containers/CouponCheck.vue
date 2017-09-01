@@ -161,8 +161,8 @@
                 couponPop:{
                     popType: 1,
                     fields: {
-                        userName: { label: '用户名' },
-                        userPhone: {label:'用户姓名'},
+                        userPhone: { label: '用户名' },
+                        userName: {label:'用户姓名'},
                     },
                     items:[],
                     auditReason:'',
@@ -185,6 +185,7 @@
                     pageNo: this.pageNo,
                     pageSize: this.perPage,
                     auditId: this.auditId,
+                    ccCode: this.ccCodes,
                     beginDate: this.dateStart,
                     endDate: this.dateEnd,
                     auditStatus: this.statusSelected
