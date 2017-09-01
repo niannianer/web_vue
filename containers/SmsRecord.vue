@@ -106,7 +106,6 @@
                     </template>
                 </b-table> -->
             </div>
-            <input type="checkBox">
             <div class="justify-content-center paging pages" flex-box="0" flex="main:center">
                 <div flex>
                     <div>

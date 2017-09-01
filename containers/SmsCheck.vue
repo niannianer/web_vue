@@ -235,7 +235,7 @@
                     </ul>
                 </div>
                 <div class="sms-detail-btn" flex="main:center">
-                    <b-btn v-if="!smsDetail.operate" class="btns" @click.stop="">关闭</b-btn>
+                    <b-btn v-if="!smsDetail.operate" class="btns" @click.stop="smsDetailClose">关闭</b-btn>
                     <b-btn  v-else class="btns" @click.native="audit">确定</b-btn>
                 </div>
                 <div class="sms-close" @click.stop="smsDetailClose"></div>
@@ -251,7 +251,6 @@
     import Toast from '../components/Toast';
     import datepicker from 'vue-date';
     import VueFileUpload  from 'vue-file-upload';
-    //console.log('66',FileUpload);
     export default {
         name: 'sms-check',
         data(){
@@ -352,13 +351,15 @@
                             text:'DX20170830112-生日短信',
                         }
                     ],
-                    smsTemplateNo:'DX20170830112'
+                    smsTemplateNo:'DX20170830112',
+                    smsTemplateContent:{},
+                    smstemplateDescription:{}
                 },
                 smsDetail:{
                     operate:true,
                     title:'短信发送详情',
                     fields: {
-                        mobile: { label: '用户名' },
+                        mobile: { label: '手机号' },
                         userName:{label:'姓名'},
                     },
                     items:[],
@@ -429,7 +430,25 @@
                 this.endDate = '';
             },
             addSms(){
+                this.sendObj.smsTemplateNoOptions = [];
                 this.smsSendShow = true;
+                $api.get('/smsTemplate/listAll').then(res=>{
+                    if(res.code == 200){
+                        res.data.forEach(({templateNo,templateContent,templateDescription},index)=>{
+                            let ouputs = String(templateDescription);
+                            if(ouputs.length>8){
+                                ouputs = ouputs.substring(0,8)+"...";
+                            }
+                            this.sendObj.smsTemplateNoOptions.push({
+                                value:templateNo,
+                                text:templateNo+'-'+ouputs
+                            });
+                            this.sendObj.smsTemplateContent[templateNo] = templateContent;
+                            this.sendObj.smstemplateDescription[templateNo] = templateDescription;
+                        });
+                        this.sendObj.smsTemplateNo = this.sendObj.smsTemplateNoOptions[0].value;
+                    }
+                });
             },
             pageChange(){
                 this.getList();
@@ -466,7 +485,7 @@
                 });
             },
             getDetailList(){
-                let auditId = this.smsDetailItems.id;
+                let auditId = this.smsDetailItems.requestNo;
                 let {pageSize,pageNo} = this.smsDetail;
                 $api.get('/message/lstSmsSendRequestDetail',{
                     auditId,
@@ -506,19 +525,24 @@
                     Toast('请先添加手机号！');
                     return false;
                 }
-                if(this.sendObj.innerTab){
+                let {userPhoneList,smsType,smsTemplateNo,smsContent,smsDescription} = this.sendObj;
+                if(this.sendObj.innerTab == 1){
                     //自定义
-                    if(this.sendObj.smsContent.trim().length<1){
+                    if(smsContent.trim().length<1){
                         Toast('短信内容不能为空！');
                         return false;
                     }
-                    if(this.sendObj.smsDescription.trim().length<1){
+                    if(smsDescription.trim().length<1){
                         Toast('短信备注不能为空！');
                         return false;
                     }
+                    smsTemplateNo = '';
+                }else{
+                    //模板提交
+                    smsContent = this.sendObj.smsTemplateContent[this.sendObj.smsTemplateNo];
+                    smsDescription = this.sendObj.smstemplateDescription[this.sendObj.smsTemplateNo];
                 }
                 this.submitClick = false;
-                let {userPhoneList,smsType,smsTemplateNo,smsContent,smsDescription} = this.sendObj;
                 let userPhoneStr = userPhoneList.join(",");
                 $api.post('/message/insertSmsSendRequestByList',{
                     userPhoneList:userPhoneStr,
