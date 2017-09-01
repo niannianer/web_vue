@@ -614,6 +614,9 @@
                 this.smsDetailShow = false;
                 this.smsDetail.pageNo = 1;
                 this.smsDetail.tab = 1;
+                this.smsDetail.items = [];
+                this.smsDetail.auditReason = '';
+                this.smsDetail.count = 0;
             },
             //添加上传文件
             onAddItem(files){
