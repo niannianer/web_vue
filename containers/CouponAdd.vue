@@ -264,7 +264,6 @@
                     method: 'POST',
                     body: form
                 }).then(res=>{
-                    alert(1);
                     if(res.code == 200){
                         Toast('提交成功！');
                         setTimeout(()=> {
