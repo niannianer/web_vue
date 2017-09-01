@@ -100,10 +100,10 @@
                     </ul>
                 </div>
                 <div class="sms-detail-btn" flex="main:center">
-                    <b-btn v-if="couponPop.popType == 1" class="btns" @click.stop="popShow = false;couponPop.tab = 1">关闭</b-btn>
+                    <b-btn v-if="couponPop.popType == 1" class="btns" @click.stop="popShow = false;couponPop.tab = 1;couponPop.pageNo = 1">关闭</b-btn>
                     <b-btn v-else class="btns" @click.stop="postAudits">确定</b-btn>
                 </div>
-                <div class="sms-close" @click.stop="popShow = false;couponPop.tab = 1"></div>
+                <div class="sms-close" @click.stop="popShow = false;couponPop.tab = 1;couponPop.pageNo = 1"></div>
             </div>
         </div>
     </div>
@@ -142,7 +142,7 @@
                 fields: [
                     { label: '审核编号' },
                     {label:'礼券批次'},
-                    { label: '导入用户记录条数(人)' },
+                    { label: '导入用户记录条数' },
                     { label: '创建时间' },
                     { label: '创建人' },
                     { label: '状态' },
