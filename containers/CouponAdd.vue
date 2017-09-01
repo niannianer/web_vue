@@ -264,12 +264,18 @@
                     method: 'POST',
                     body: form
                 }).then(res=>{
-                    alert(1);
-                    if(res.code == 200){
+                    if (res.status == 200){
+                        return res.json();
+                    }
+                }).then(res=>{
+                    if (res.code == 200){
                         Toast('提交成功！');
                         setTimeout(()=> {
                             this.redirectTo();
                         }, 3000);
+                    } else {
+                        Toast(res.msg);
+                        return;
                     }
                 });
             },
