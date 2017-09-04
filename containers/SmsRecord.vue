@@ -73,7 +73,7 @@
                             <td class="ellipsis">
                                 <div :title="item.smsContent">{{item.smsDescription | ellipsisFormat}}</div>
                             </td>
-                            <td>{{item.sendTime}}</td>
+                            <td>{{item.sendTime | timeFormat}}</td>
                             <td>
                                 <template v-if="item.smsStatus == 0">全部</template>
                                 <template v-if="item.smsStatus == 1">发送中</template>
