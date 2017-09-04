@@ -153,7 +153,7 @@
                 let batchOptions = this.batchOptions;
                 let batchOptions_len = batchOptions.length;
                 let batchArr = this.batchArr;
-                if (batchArr.length >= 4) {
+                if (batchArr.length >= 20) {
                     Toast('批次号最多添加20条');
                     return;
                 }
