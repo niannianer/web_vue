@@ -124,7 +124,7 @@
                     </li>
                     <li class="sms-content-list" flex>
                         <div class="sms-content-left">短信类别：</div>
-                        <div class="sms-content-right"><b-form-select v-model="sendObj.smsType" :options="sendObj.smsTypeOptions" size="sm"></b-form-select></div>
+                        <div class="sms-content-right"><b-form-select v-model="sendObj.smsType" @input="smsTypeChange" :options="sendObj.smsTypeOptions" size="sm"></b-form-select></div>
                     </li>
                     <li class="sms-content-list" flex>
                         <div class="sms-content-left">短信内容：</div>
@@ -341,13 +341,8 @@
                         }
                     ],
                     smsType:1,
-                    smsTemplateNoOptions:[
-                        {
-                            value:'DX20170830112',
-                            text:'DX20170830112-生日短信',
-                        }
-                    ],
-                    smsTemplateNo:'DX20170830112',
+                    smsTemplateNoOptions:[],
+                    smsTemplateNo:'',
                     smsTemplateContent:{},
                     smstemplateDescription:{}
                 },
@@ -403,8 +398,16 @@
                 this.submitClick = true;//可点状态
                 this.sendObj.smsTemplateNoOptions = [];
                 this.smsSendShow = true;
-                $api.get('/smsTemplate/listAll').then(res=>{
+                this.smsTypeChange();
+            },
+            smsTypeChange(){
+                $api.get('/smsTemplate/listAll',{
+                    smsType:this.sendObj.smsType
+                }).then(res=>{
                     if(res.code == 200){
+                        this.sendObj.smsTemplateNoOptions = [];
+                        this.sendObj.smsTemplateContent = {};
+                        this.sendObj.smstemplateDescription = {};
                         res.data.forEach(({templateNo,templateContent,templateDescription},index)=>{
                             let ouputs = String(templateDescription);
                             if(ouputs.length>8){
@@ -417,7 +420,11 @@
                             this.sendObj.smsTemplateContent[templateNo] = templateContent;
                             this.sendObj.smstemplateDescription[templateNo] = templateDescription;
                         });
-                        this.sendObj.smsTemplateNo = this.sendObj.smsTemplateNoOptions[0].value;
+                        if(this.sendObj.smsTemplateNoOptions.length>0){
+                            this.sendObj.smsTemplateNo = this.sendObj.smsTemplateNoOptions[0].value;
+                        }else{
+                            this.sendObj.smsTemplateNo = null;
+                        }
                     }
                 });
             },
@@ -533,6 +540,10 @@
                     smsTemplateNo = '';
                 }else{
                     //模板提交
+                    if(!smsTemplateNo){
+                        Toast('请先选择短信模板编号！');
+                        return false;
+                    }
                     smsContent = this.sendObj.smsTemplateContent[this.sendObj.smsTemplateNo];
                     smsDescription = this.sendObj.smstemplateDescription[this.sendObj.smsTemplateNo];
                 }
@@ -572,7 +583,8 @@
                 this.sendObj.smsContent = '';
                 this.sendObj.smsDescription = '';
                 this.sendObj.smsType = 1;
-                this.sendObj.smsTemplateNo = 'DX20170830112';
+                this.sendObj.smsTemplateNo = '';
+                this.fileName = '';
             },
             //详情分页
             smsDetailChange(){

@@ -3,7 +3,7 @@
  */
 let protocol = window.location.protocol;
 export const devUrl = 'http://10.10.10.72:8891';
-export const testUrl = `${protocol}//59.110.231.153:8891`;
+export const testUrl = `${protocol}//mgt-kop-test.zj-hf.cn:8891`;
 export const productionUrl = `${protocol}//zj-mgt-kop.zj-hf.cn`;
 
 export const baofooCallUrlProduct = `${protocol}//callme.zj-hf.cn`;
