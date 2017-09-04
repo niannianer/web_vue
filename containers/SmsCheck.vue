@@ -59,7 +59,7 @@
                     <template slot="auditTime" scope="item">{{item.value | timeFormat}}</template>
                     <template slot="requestStatus" scope="item">
                         <template v-if="item.value == 1">待审核</template>
-                        <template v-if="item.value == -1">审核失败</template>
+                        <template v-if="item.value == -1">审核作废</template>
                         <template v-if="item.value == 2">已审核</template>
                     </template>
                     <template slot="operation" scope="item">
@@ -107,16 +107,12 @@
                                     <div flex class="cell-number-add">
                                         <div>导入用户：</div>
                                         <div class="upload-excel" flex>
-                                            <vue-file-upload 
-                                                url='http://10.10.10.72:8888/file/fileUpload'
-                                                label=""
-                                                ref="vueFileUploader"
-                                                v-bind:events = "cbEvents"
-                                                v-bind:request-options = "reqopts"
-                                                v-on:onAdd = "onAddItem"></vue-file-upload>
+                                            <span class="fileupload-button">
+                                                <input type="file" ref="fileInput" class="file" @change="fileChange"/>
+                                            </span>
                                             <span class="excel-name">{{fileName}}</span>
                                         </div>
-                                        <div style="font-size:0"><b-btn class="btns" @click="uploadExcel">确定</b-btn></div>
+                                        <!-- <div style="font-size:0"><b-btn class="btns" @click="uploadExcel">确定</b-btn></div> -->
                                     </div>
                                 </div>
                             </div>
@@ -204,7 +200,7 @@
                             <div>状态：</div>
                             <div>
                                 <template v-if="smsDetailItems.requestStatus == 1">待审核</template>
-                                <template v-if="smsDetailItems.requestStatus == -1">审核失败</template>
+                                <template v-if="smsDetailItems.requestStatus == -1">审核作废</template>
                                 <template v-if="smsDetailItems.requestStatus == 2">已审核</template>
                             </div>
                         </li>
@@ -251,6 +247,7 @@
     import Toast from '../components/Toast';
     import datepicker from 'vue-date';
     import VueFileUpload  from 'vue-file-upload';
+    let file = null;
     export default {
         name: 'sms-check',
         data(){
@@ -521,11 +518,28 @@
                     //避免重复提交
                     return false;
                 }
-                if(this.messCount < 1){
-                    Toast('请先添加手机号！');
-                    return false;
-                }
+
                 let {userPhoneList,smsType,smsTemplateNo,smsContent,smsDescription} = this.sendObj;
+                let userPhoneStr = '';
+                let form = new FormData();
+                if(this.sendObj.tab == 1){
+                    //导入excel
+                    console.log(this.fileName);
+                    if(!this.fileName){
+                        Toast('请先上传文件！');
+                        return false;
+                    }
+                    form.append('file', file, file.name);
+                    console.log('0.0',file);
+                }else{
+                    //逐个导入
+                    if(this.messCount < 1){
+                        Toast('请先添加手机号！');
+                        return false;
+                    }
+                    userPhoneStr = userPhoneList.join(",");
+                    form.append('userPhoneList',userPhoneStr);
+                }
                 if(this.sendObj.innerTab == 1){
                     //自定义
                     if(smsContent.trim().length<1){
@@ -542,9 +556,31 @@
                     smsContent = this.sendObj.smsTemplateContent[this.sendObj.smsTemplateNo];
                     smsDescription = this.sendObj.smstemplateDescription[this.sendObj.smsTemplateNo];
                 }
+                form.append('smsType',smsType);
+                form.append('smsTemplateNo',smsTemplateNo);
+                form.append('smsContent',smsContent);
+                form.append('smsDescription',smsDescription);
                 this.submitClick = false;
-                let userPhoneStr = userPhoneList.join(",");
-                $api.post('/message/insertSmsSendRequestByList',{
+                fetch($api.serverUrl+'/message/insertSmsSendRequestByList', {
+                    method: 'POST',
+                    body: form
+                }).then(res=>{
+                    this.submitClick = false;
+                    if (res.status == 200){
+                        return res.json();
+                    }
+                }).then(res=>{
+                    if (res.code == 200){
+                        this.smsSendClose();
+                        this.empty();
+                        this.pageNo = 1;
+                        this.getList();
+                    } else {
+                        Toast(res.message || '服务器错误！');
+                        return;
+                    }
+                });
+                /*$api.post('/message/insertSmsSendRequestByList',{
                     userPhoneList:userPhoneStr,
                     smsType,
                     smsTemplateNo,
@@ -560,7 +596,7 @@
                     }else{
                         Toast(res.message || '服务器错误！');
                     }
-                });
+                });*/
             },
             //关闭添加请求
             smsSendClose(){
@@ -618,8 +654,31 @@
                 this.smsDetail.auditReason = '';
                 this.smsDetail.count = 0;
             },
+            fileChange(event){
+                file = event.target.files[0];
+                let name = file.name;
+                let type = file.type;
+                console.log(type);
+                let checkType1 = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+                let checkType2 = 'application/vnd.openxmlformats-officedocument.spreadsheetml.template';
+                let checkType3 = 'application/vnd.ms-excel';
+                if(type == ''){
+                    /*if(!/\.xl(s[xmb]|t[xm]|am)$/.test(name)){
+                        Toast('请选择excel文件上传1！');
+                        return false;
+                    }*/
+                }else if((type != checkType1) && (type != checkType2) && (type != checkType3) && (!/\.xl(s[xmb]|t[xm]|am)$/.test(type))){
+                    Toast('请选择excel文件上传2！');
+                    return false;
+                }
+                if (file.size>this.maxSize) {
+                    Toast('文件大小不得超过2M');
+                    return false;
+                }
+                this.fileName = name;
+            },
             //添加上传文件
-            onAddItem(files){
+            /*onAddItem(files){
                 this.files = files;
                 let name = files[files.length-1].name;
                 let type = files[files.length-1].type;
@@ -632,14 +691,14 @@
                     return false;
                 }
                 this.fileName = name;
-            },
+            }*//*,
             uploadExcel(){
                 if(this.fileName){
                     this.files[this.files.length-1].upload();
                     return true;
                 }
                 Toast('请先选择上传文件！');
-            }
+            }*/
         },
         mounted(){},
         destroyed(){

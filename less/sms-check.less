@@ -146,7 +146,21 @@
                                 font-size: 0;
                                 min-width: 96px;
                                 .fileupload-button{
-                                    padding: 0 10px;
+                                    position: relative;
+                                    overflow: hidden;
+                                    display: inline-block;
+                                    color: #fff;
+                                    padding:0;
+                                    background-color: #5cb85c;
+                                    border-color: #4cae4c;
+                                    margin: 0;
+                                    font-size: 14px;
+                                    font-weight: 400;
+                                    line-height: 1.42857143;
+                                    text-align: center;
+                                    white-space: nowrap;
+                                    vertical-align: middle;
+                                    cursor: pointer;
                                     line-height: 30px;
                                     height:30px;
                                     border-radius: .25rem;
@@ -154,6 +168,9 @@
                                     input{
                                         width:100%;
                                         height:100%;
+                                        z-index: 999;
+                                        opacity: 0;
+                                        position: relative;
                                     }
                                     &:after,&:before{
                                         content: "";
@@ -163,6 +180,7 @@
                                         border-radius: 2px;
                                         left:50%;
                                         top:50%;
+                                        z-index: 99;
                                     }
                                     &:after{
                                         width:16px;
@@ -178,10 +196,11 @@
                                 .excel-name{
                                     font-size: 14px;
                                     line-height: 30px;
-                                    max-width: 180px;
+                                    max-width: 360px;
                                     overflow:hidden;
                                     text-overflow:ellipsis;
                                     white-space: nowrap;
+                                    margin-left: 15px;
                                 }
                             }
                             

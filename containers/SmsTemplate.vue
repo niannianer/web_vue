@@ -70,7 +70,6 @@
                     if(!this.submitClick){
                         return false;
                     }
-                    this.submitClick = false;
                     if(this.templateContent.trim().length <= 0) {
                         Toast('短信内容不能为空');
                         return;
@@ -79,6 +78,7 @@
                         Toast('短信备注不能为空');
                         return;
                     }
+                    this.submitClick = false;
                     $api.post('/smsTemplate',{
                         "smsType":this.smsType,
                         "templateContent":this.templateContent,

@@ -23,7 +23,7 @@
                 </div>
                 <div class="table-input" flex="main:justify">
                     <dl flex>
-                        <dt>短息内容：</dt>
+                        <dt>短信内容：</dt>
                         <dd><b-form-input type="text" size="sm" v-model="templateContent" placeholder="请输入短息内容"></b-form-input></dd>
                     </dl>
                     <div flex class="handle-btn">

@@ -55,7 +55,7 @@
                     </thead>
                     <tbody>
                         <tr v-for="(item,index) in items" :key="index">
-                            <td><div><input type="checkBox" :checked="item.checked " @click="everChecked(index)"></div></td>
+                            <td><div><input v-if="item.smsStatus == 3" type="checkBox" :checked="item.checked " @click="everChecked(index)"></div></td>
                             <td>{{item.mobile}}</td>
                             <td>{{item.userName}}</td>
                             <td>{{item.requestNo}}</td>
@@ -121,6 +121,7 @@
 <script>
     import $api from '../tools/api';
     import ConfirmOnly from '../components/ConfirmOnly';
+    import Toast from '../components/Toast';
     import datepicker from 'vue-date';
     export default {
         name: 'sms-record',
@@ -185,6 +186,7 @@
                     sendStatusMess: { label: '备注' },
                 },
                 items:[],
+                submitItem:{},
                 pageSize:20,
                 count:0,
                 pageNo:1,
@@ -223,7 +225,9 @@
                 this.checkedAll = !this.checkedAll;
                 if(this.checkedAll){
                     this.items.forEach((val,index)=>{
-                        val.checked = 1;
+                        if(val.smsStatus == 3){
+                            val.checked = 1;
+                        }
                     });
                     return false;
                 }
@@ -232,12 +236,37 @@
                 })
             },
             someSend(){
+                let messageCount = 0;
+                this.submitItem = {};
+                this.items.forEach(({mobile,requestNo,checked},index)=>{
+                    console.log(checked);
+                    if(checked){
+                        if(!this.submitItem[requestNo]){
+                            this.submitItem[requestNo] = [];
+                        }
+                        this.submitItem[requestNo].push(mobile);
+                        messageCount++;
+                    }
+                });
+                if(messageCount<1){
+                    Toast('当前没有发送失败记录！');
+                    return false;
+                }
                 ConfirmOnly({
                     title:'短信批量发送',
-                    content:`请求发送条数：${66}条`,
+                    content:`请求发送条数：${messageCount}条`,
                     callback:()=>{
-                        this.items.forEach(({mobile,requestNo},index)=>{
-                            
+                        for(let index in this.submitItem){
+                            this.submitItem[index] = this.submitItem[index].join(',');
+                        }
+                        $api.post('/message/repeatSendSms',{
+                            sendInfo:this.submitItem
+                        }).then(res=>{
+                            if(res.code == 200){
+                                this.pageNo = 1;
+                                this.getList();
+                                this.empty();
+                            }
                         });
                     }
                 });
@@ -262,7 +291,6 @@
                 this.checkedAll = true;
             },
             getList(){
-                this.checkedAll = false;
                 let {requestBy,phoneNumber,smsTemplateNo,smsStatus,smsType,requestNo,beginDate,endDate,pageSize,pageNo} = this;
                 $api.get('/message/lstSmsSendLog',{requestBy,phoneNumber,smsTemplateNo,smsStatus,smsType,requestNo,beginDate,endDate,pageSize,pageNo})
                     .then(res=>{
@@ -270,7 +298,8 @@
                         this.items = res.data.items;
                         this.count = res.data.totalCount;
                     }
-                })
+                });
+                this.checkedAll = false;
             }
         },
         mounted(){},
