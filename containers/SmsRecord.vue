@@ -71,7 +71,7 @@
                                 <div :title="item.smsContent">{{item.smsContent | ellipsisFormat}}</div>
                             </td>
                             <td class="ellipsis">
-                                <div :title="item.smsContent">{{item.smsDescription | ellipsisFormat}}</div>
+                                <div :title="item.smsDescription">{{item.smsDescription | ellipsisFormat}}</div>
                             </td>
                             <td>{{item.sendTime | timeFormat}}</td>
                             <td>
@@ -195,10 +195,6 @@
             }
         },
         created(){
-            /*ConfirmOnly({
-                title:'短信批量发送',
-                content:'请求发送条数：89条'
-            });*/
             this.getList();
         },
         components: { datepicker },
@@ -249,6 +245,12 @@
                     }
                 });
                 if(messageCount<1){
+                    for(let val of this.items){
+                        if(val.smsStatus == 3){
+                            Toast('请先选择重发记录！');
+                            return false;
+                        }
+                    }
                     Toast('当前没有发送失败记录！');
                     return false;
                 }
@@ -270,15 +272,6 @@
                         });
                     }
                 });
-                if(this.checkedAll){
-                    console.log('all');
-                    return false;
-                }
-                this.items.forEach((val,index)=>{
-                    if(val.checked){
-                        console.log(index);
-                    }
-                })
             },
             everChecked(index){
                 this.items[index].checked = !this.items[index].checked;
