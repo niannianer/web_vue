@@ -488,6 +488,7 @@
                     }
                 }
                 this.sendObj.userPhoneList.push(cellNumber);
+                this.sendObj.cellNumber = '';
             },
             //删除手机号
             deletNumber(index){
