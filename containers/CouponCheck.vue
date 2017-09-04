@@ -71,7 +71,7 @@
         </div>
         <!--详情、审核弹框-->
         <div v-if="popShow" class="sms-box shadow-box" flex="main:center cross:center">
-            <div class="sms-detail-wrap sms-wrap">
+            <div class="sms-detail-wrap sms-wrap" :class="{forDetail: couponPop.popType == 1}">
                 <h6 v-if="couponPop.popType == 1">指定发放用户详情</h6>
                 <h6 v-else>礼券批量发放审核</h6>
                 <div class="sms-detail-content" :class="{forCheck: couponPop.popType == 2}">
