@@ -210,19 +210,6 @@
                     this.couponPop.popType = 2;
                 }
             },
-            //添加上传文件
-            onAddItem(files){
-                this.files = files;
-                let name = files[files.length-1].name;
-                if(!(/\.xl(s[xmb]|t[xm]|am)$/.test(name))){
-                    Toast('请选择excel文件上传！');
-                    return false;
-                }
-                if(files[files.length-1].size>this.maxSize){
-                    Toast('上传文件不要大于2M！');
-                    return false;
-                }
-            },
             //跳转到列表页
             redirectTo(){
                 location.href = 'coupon-check.html';
@@ -237,7 +224,8 @@
                 let checkType3 = 'application/vnd.ms-excel';
                 this.fileName = file.name;
                 if(type == ''){
-                    if(!/\.xl(s[xmb]|t[xm]|am)$/.test(name)){
+                    let reg = /.*\.(?:(?!(xls|xlsx|xlsm)).)+/;
+                    if(reg.test(name)){
                         Toast('请选择excel文件上传！');
                         this.fileName = '';
                         return false;
