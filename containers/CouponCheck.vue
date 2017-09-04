@@ -85,7 +85,7 @@
                                 <div>
                                     <b-pagination prev-text="上一页" next-text="下一页" hide-goto-end-buttons size="md" :total-rows="couponPop.count" :per-page='couponPop.perPage' v-model="couponPop.pageNo" @click.native="couponDetailChange()"></b-pagination>
                                 </div>
-                                <div class="total"><span>共{{ Math.ceil(couponPop.count / perPage) }}页</span>/<span>共{{ couponPop.count }}条</span></div>
+                                <div class="total"><span>共{{ Math.ceil(couponPop.count / couponPop.perPage) }}页</span>/<span>共{{ couponPop.count }}条</span></div>
                             </div>
                         </div>
                     </div>
@@ -136,7 +136,7 @@
                         value: 2
                     }
                 ],
-                statusSelected: '',
+                statusSelected: '0',
                 dateStart: '',
                 dateEnd: '',
                 fields: [
@@ -309,6 +309,8 @@
                 }).then(res=>{
                     if(res.code == 200){
                         Toast('批量审核成功！');
+                        this.auditIdStr = '';
+                        this.couponPop.auditReason = '';
                         setTimeout(() => {
                             this.getTable();
                             this.isCheckedAll = false;
