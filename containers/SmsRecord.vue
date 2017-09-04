@@ -80,7 +80,7 @@
                                 <template v-if="item.smsStatus == 2">已发送</template>
                                 <template v-if="item.smsStatus == 3">发送失败</template>
                             </td>
-                            <td>{{item.description}}</td>
+                            <td>{{item.sendStatusMess}}</td>
                         </tr>
                     </tbody>
                 </table>
