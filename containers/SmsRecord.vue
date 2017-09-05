@@ -84,34 +84,13 @@
                         </tr>
                     </tbody>
                 </table>
-                <!-- <b-table :items="items" :fields="fields"  bordered>
-                    <template slot="experienceAmount" scope="item">{{ item.value | currencyFormat}}</template>
-                    <template slot="annualInterestRate" scope="item">{{ item.value | translatePate}}</template>
-                    <template slot="issueNode" scope="item">注册</template>
-                    <template slot="conditionProductPeriod" scope="item">累计投资{{item.value}}天以上产品超过{{item.item.conditionProductAmount}}元</template>
-                    <template slot="etStatus" scope="item">
-                        <template v-if="item.value == 0">待激活</template>
-                        <template v-if="item.value == 1">已激活</template>
-                        <template v-if="item.value == 2">已停用</template>
-                    </template>
-                    <template slot="createTime" scope="item">{{item.value | timeFormat}}</template>
-                    <template slot="operation" scope="item">
-                        <div v-if="item.item.etStatus == 0" flex="main:center">
-                            <b-btn class="btns" @click.native="addMarket(item.item.etUuid)">修改</b-btn>
-                            <b-btn class="btns" @click.native="updateMarket(item.item.etUuid,1)">激活</b-btn>
-                        </div>
-                        <div v-if="item.item.etStatus == 1">
-                            <b-btn class="btns" @click.native="updateMarket(item.item.etUuid,2)">停用</b-btn>
-                        </div>
-                    </template>
-                </b-table> -->
             </div>
             <div class="justify-content-center paging pages" flex-box="0" flex="main:center">
                 <div flex>
                     <div>
                         <b-pagination prev-text="上一页" next-text="下一页" hide-goto-end-buttons size="md" :total-rows="count" :per-page='pageSize' v-model="pageNo" @click.native="pageChange()"></b-pagination>
                     </div>
-                    <div class="total"><span>共{{ Math.ceil(count / pageSize) }}页</span><span>共{{ count }}条</span></div>
+                    <div class="total"><span>共{{ Math.ceil(count / pageSize) }}页/</span><span>共{{ count }}条</span></div>
                 </div>
             </div>
         </div>
@@ -235,7 +214,6 @@
                 let messageCount = 0;
                 this.submitItem = {};
                 this.items.forEach(({mobile,requestNo,checked},index)=>{
-                    console.log(checked);
                     if(checked){
                         if(!this.submitItem[requestNo]){
                             this.submitItem[requestNo] = [];

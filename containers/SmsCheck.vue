@@ -73,7 +73,7 @@
                     <div>
                         <b-pagination prev-text="上一页" next-text="下一页" hide-goto-end-buttons size="md" :total-rows="count" :per-page='perPage' v-model="pageNo" @click.native="pageChange()"></b-pagination>
                     </div>
-                    <div class="total"><span>共{{ Math.ceil(count / perPage) }}页</span><span>共{{ count }}条</span></div>
+                    <div class="total"><span>共{{ Math.ceil(count / perPage) }}页/</span><span>共{{ count }}条</span></div>
                 </div>
             </div>
         </div>
@@ -216,7 +216,7 @@
                                 <div>
                                     <b-pagination prev-text="上一页" next-text="下一页" hide-goto-end-buttons size="md" :total-rows="smsDetail.count" :per-page='smsDetail.pageSize' v-model="smsDetail.pageNo" @click.native="smsDetailChange()"></b-pagination>
                                 </div>
-                                <div class="total"><span>共{{ Math.ceil(smsDetail.count / smsDetail.pageSize) }}页</span><span>共{{ smsDetail.count }}条</span></div>
+                                <div class="total"><span>共{{ Math.ceil(smsDetail.count / smsDetail.pageSize) }}页/</span><span>共{{ smsDetail.count }}条</span></div>
                             </div>
                         </div>
                     </div>
@@ -350,8 +350,8 @@
                     operate:true,
                     title:'短信发送详情',
                     fields: {
-                        mobile: { label: '手机号' },
-                        userName:{label:'姓名'},
+                        mobile: { label: '手机号',thStyle:{width:"50%"} },
+                        userName:{label:'姓名',thStyle:{width:"50%"}},
                     },
                     items:[],
                     auditReason:'',
