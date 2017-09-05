@@ -554,6 +554,7 @@
                 this.submitClick = false;
                 fetch($api.serverUrl+'/message/insertSmsSendRequestByList', {
                     method: 'POST',
+                    withCredentials: true,
                     body: form
                 }).then(res=>{
                     this.submitClick = true;

@@ -262,6 +262,7 @@
                 form.append('userPhoneList',usernameArrStr);
                 fetch($api.serverUrl+'/coupon/insertSpecifiedDistribution', {
                     method: 'POST',
+                    withCredentials: true,
                     body: form
                 }).then(res=>{
                     if (res.status == 200){
