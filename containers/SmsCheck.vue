@@ -242,6 +242,7 @@
 
 <script>
     import $api from '../tools/api';
+    import axios from 'axios';
     import {checkPhone} from '../tools/operation';
     import Confirm from '../components/Confirm';
     import Toast from '../components/Toast';
@@ -552,14 +553,12 @@
                 form.append('smsContent',smsContent);
                 form.append('smsDescription',smsDescription);
                 this.submitClick = false;
-                fetch($api.serverUrl+'/message/insertSmsSendRequestByList', {
-                    method: 'POST',
-                    withCredentials: true,
-                    body: form
+                axios.post($api.serverUrl+'/message/insertSmsSendRequestByList',form,{
+                    withCredentials:true
                 }).then(res=>{
                     this.submitClick = true;
                     if (res.status == 200){
-                        return res.json();
+                        return res.data;
                     }
                 }).then(res=>{
                     this.submitClick = true;

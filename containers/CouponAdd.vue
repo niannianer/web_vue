@@ -265,7 +265,7 @@
                     withCredentials:true
                 }).then(res=>{
                     if (res.status == 200){
-                        return res.json();
+                        return res.data;
                     }
                 }).then(res=>{
                     if (res.code == 200){
@@ -278,26 +278,6 @@
                         return;
                     }
                 })
-               /* fetch($api.serverUrl+'/coupon/insertSpecifiedDistribution', {
-                    method: 'POST',
-                    withCredentials: true,
-                    credentials:'include',
-                    body: form
-                }).then(res=>{
-                    if (res.status == 200){
-                        return res.json();
-                    }
-                }).then(res=>{
-                    if (res.code == 200){
-                        Toast('提交成功！');
-                        setTimeout(()=> {
-                            this.redirectTo();
-                        }, 3000);
-                    } else {
-                        Toast(res.msg);
-                        return;
-                    }
-                });*/
             },
         },
         mounted(){},
