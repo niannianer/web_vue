@@ -101,6 +101,7 @@
 
 <script>
     import $api from '../tools/api';
+    import axios from 'axios';
     import Confirm from '../components/Confirm';
     import Toast from '../components/Toast';
     import ConfirmOnly from '../components/ConfirmOnly';
@@ -260,7 +261,24 @@
                 }
                 form.append('ccCodeList',batchArrStr);
                 form.append('userPhoneList',usernameArrStr);
-                fetch($api.serverUrl+'/coupon/insertSpecifiedDistribution', {
+                axios.post($api.serverUrl+'/coupon/insertSpecifiedDistribution',form,{
+                    withCredentials:true
+                }).then(res=>{
+                    if (res.status == 200){
+                        return res.json();
+                    }
+                }).then(res=>{
+                    if (res.code == 200){
+                        Toast('提交成功！');
+                        setTimeout(()=> {
+                            this.redirectTo();
+                        }, 3000);
+                    } else {
+                        Toast(res.msg);
+                        return;
+                    }
+                })
+               /* fetch($api.serverUrl+'/coupon/insertSpecifiedDistribution', {
                     method: 'POST',
                     withCredentials: true,
                     credentials:'include',
@@ -279,7 +297,7 @@
                         Toast(res.msg);
                         return;
                     }
-                });
+                });*/
             },
         },
         mounted(){},
