@@ -263,6 +263,7 @@
                 fetch($api.serverUrl+'/coupon/insertSpecifiedDistribution', {
                     method: 'POST',
                     withCredentials: true,
+                    credentials:'include',
                     body: form
                 }).then(res=>{
                     if (res.status == 200){
